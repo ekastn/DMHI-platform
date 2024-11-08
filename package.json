@@ -1,0 +1,25 @@
+{
+    "name": "dmhi-platform",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "frontend:dev": "vite",
+        "frontend:build": "tsc && vite build",
+        "frontend:preview": "vite preview",
+        "backend:dev": "flask --app app run --debug",
+        "backend": "flask --app app run",
+        "dev": "concurrently --kill-others \"npm run frontend:dev\" \"npm run backend:dev\"",
+        "start": "npm run frontend:build && npm run backend"
+    },
+    "devDependencies": {
+        "@types/three": "^0.169.0",
+        "autoprefixer": "^10.4.20",
+        "concurrently": "^9.1.0",
+        "postcss": "^8.4.47",
+        "tailwindcss": "^3.4.14",
+        "three": "^0.170.0",
+        "typescript": "~5.6.2",
+        "vite": "^5.4.10"
+    }
+}

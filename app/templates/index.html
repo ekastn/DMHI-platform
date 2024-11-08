@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  {%- if not is_production %}
+  <script type="module" src="{{ asset('@vite/client') }}"></script>
+  {%- endif %}
+  <link rel="stylesheet" href="{{ asset('styles.css') }}" />
+
+  <title>DMHI Platform</title>
+</head>
+
+<body class="bg-black">
+  <h1 class="text-black absolute text-3xl">DMHI Platform</h1>
+
+  <div id="experience-container" class="w-screen h-screen"></div>
+
+  <script type="module" src="{{ asset('main.ts') }}"></script>
+</body>
+
+</html>

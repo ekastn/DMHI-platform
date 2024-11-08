@@ -1,0 +1,9 @@
+{
+    "editor.tabSize": 4,
+    "editor.indentSize": "tabSize",
+    "prettier.printWidth": 100,
+    "prettier.tabWidth": 4,
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    }
+}
