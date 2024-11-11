@@ -4,13 +4,13 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "frontend:dev": "vite",
-        "frontend:build": "tsc && vite build",
-        "frontend:preview": "vite preview",
-        "backend:dev": "flask --app app run --debug",
-        "backend": "flask --app app run",
-        "dev": "concurrently --kill-others \"npm run frontend:dev\" \"npm run backend:dev\"",
-        "start": "npm run frontend:build && npm run backend"
+        "assets:dev": "vite",
+        "assets:build": "tsc && vite build",
+        "assets:preview": "vite preview",
+        "server:dev": "flask --app app run --debug",
+        "server": "flask --app app run",
+        "dev": "concurrently --kill-others \"npm run assets:dev\" \"npm run server:dev\"",
+        "start": "npm run assets:build && npm run server"
     },
     "devDependencies": {
         "@types/three": "^0.169.0",
