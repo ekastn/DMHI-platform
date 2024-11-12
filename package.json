@@ -6,6 +6,7 @@
     "scripts": {
         "assets:dev": "vite",
         "assets:build": "tsc && vite build",
+        "assets:test": "vitest",
         "assets:preview": "vite preview",
         "server:dev": "flask --app app run --debug",
         "server": "flask --app app run",
@@ -13,6 +14,7 @@
         "start": "npm run assets:build && npm run server"
     },
     "devDependencies": {
+        "@types/node": "^22.9.0",
         "@types/three": "^0.169.0",
         "autoprefixer": "^10.4.20",
         "concurrently": "^9.1.0",
@@ -20,6 +22,7 @@
         "tailwindcss": "^3.4.14",
         "three": "^0.170.0",
         "typescript": "~5.6.2",
-        "vite": "^5.4.10"
+        "vite": "^5.4.10",
+        "vitest": "^2.1.4"
     }
 }

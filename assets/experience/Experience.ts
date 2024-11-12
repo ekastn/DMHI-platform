@@ -1,14 +1,13 @@
 import {
-    IcosahedronGeometry,
-    Mesh,
-    MeshNormalMaterial,
+    MathUtils,
     PerspectiveCamera,
     Scene,
     WebGLRenderer
 } from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { createCamera } from "./camera";
+import Control from "./Control";
+import Globe from "./Globe";
 import { createRenderer } from "./renderer";
 import { createScene } from "./scene";
 
@@ -16,14 +15,17 @@ export default class Experience {
     private camera: PerspectiveCamera;
     private scene: Scene;
     private renderer: WebGLRenderer;
-    private control: OrbitControls;
+    private globe: Globe;
+    private control: Control;
 
     constructor(container: HTMLElement) {
         this.camera = createCamera();
         this.renderer = createRenderer();
         this.scene = createScene();
-        this.control = new OrbitControls(this.camera, this.renderer.domElement);
+        this.globe = new Globe();
+        this.control = new Control(this.globe.getMesh());
 
+        this.scene.add(this.globe.getMesh());
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -31,19 +33,27 @@ export default class Experience {
         this.camera.updateProjectionMatrix();
 
         container.append(this.renderer.domElement);
+
     }
 
     start() {
-        const geometry = new IcosahedronGeometry(2, 1);
-        const material = new MeshNormalMaterial({ wireframe: true });
-        const mesh = new Mesh(geometry, material);
+        const minZoomDistance = 15;
+        const maxZoomDistance = 25;
 
-        this.scene.add(mesh);
-        this.renderer.render(this.scene, this.camera);
+        window.addEventListener("wheel", (event) => {
+            this.camera.position.z += event.deltaY * 0.01;
+            this.camera.position.z = MathUtils.clamp(
+                this.camera.position.z,
+                minZoomDistance,
+                maxZoomDistance
+            );
+        });
+
+        window.addEventListener("mouseup", () => this.control.stopDragging());
+        window.addEventListener("mousedown", (e: MouseEvent) => this.control.startDragging(e.clientX, e.clientY));
+        window.addEventListener("mousemove", (e: MouseEvent) => this.control.handleMouseMove(e.clientX, e.clientY));
 
         this.renderer.setAnimationLoop(() => {
-            mesh.rotation.x += 0.005;
-            mesh.rotation.y += 0.005;
             this.update();
         });
     }
