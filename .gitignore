@@ -24,3 +24,6 @@ dist-ssr
 build
 __pycache__
 .venv
+.env
+
+instance/

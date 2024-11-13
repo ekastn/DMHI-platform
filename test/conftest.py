@@ -1,0 +1,82 @@
+import os
+
+import pytest
+
+from app import create_app, db
+from app.models.user import User
+
+
+@pytest.fixture()
+def app():
+    os.environ["APP_SETTING"] = "config.TestingConfig"
+    flask_app = create_app()
+
+    yield flask_app
+
+
+@pytest.fixture()
+def client(app):
+    return app.test_client()
+
+
+@pytest.fixture()
+def runner(app):
+    return app.test_cli_runner()
+
+
+@pytest.fixture()
+def init_db(app):
+    with app.app_context():
+        db.create_all()
+
+        default_user = User(
+            username="defTestUser", password="userTest1", email="u1@test.com"
+        )
+        second_user = User(
+            username="secTestUser", password="userTest2", email="u2@test.com"
+        )
+        db.session.add(default_user)
+        db.session.add(second_user)
+
+        db.session.commit()
+
+        yield  # this is where the testing happens!
+
+        db.drop_all()
+
+
+@pytest.fixture(scope="module")
+def new_user():
+    return User(username="usertest", password="test", email="user@test.com")
+
+
+@pytest.fixture(scope="function")
+def log_in_default_user(client):
+    client.post(
+        "/login",
+        data={
+            "username": "defTestUser",
+            "password": "userTest1",
+            "email": "u1@test.com",
+        },
+    )
+
+    yield
+
+    client.get("/logout")
+
+
+@pytest.fixture(scope="function")
+def log_in_second_user(client):
+    client.post(
+        "/login",
+        data={
+            "username": "secTestUser",
+            "password": "userTest2",
+            "email": "u2@test.com",
+        },
+    )
+
+    yield
+
+    client.get("/logout")

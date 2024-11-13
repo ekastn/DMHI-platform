@@ -19,6 +19,9 @@
   <div id="experience-container" class="w-screen h-screen"></div>
 
   <script type="module" src="{{ asset('main.ts') }}"></script>
+  {% for message in get_flashed_messages() %}
+  <h3>{{ message }}</h3>
+  {% endfor %}
 </body>
 
 </html>
