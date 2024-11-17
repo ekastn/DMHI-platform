@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask, render_template
+from authlib.integrations.flask_client import OAuth
+from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -8,6 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+oauth = OAuth()
 
 
 def create_app():
@@ -24,9 +26,10 @@ def create_app():
 
 def initialize_extensions(app):
     db.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_view = "auth.login"    
+    oauth.init_app(app)
 
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.login"
 
     basedir = os.path.abspath(os.path.dirname(__file__))
     migrate.init_app(app, db, directory=basedir + "/migrations")
@@ -34,8 +37,8 @@ def initialize_extensions(app):
 
 def register_blueprint(app):
     from app.helper.assets_blueprint import assets_blueprint
-    from app.routes.main import main
     from app.routes.auth import auth
+    from app.routes.main import main
 
     app.register_blueprint(assets_blueprint)
     app.register_blueprint(main)

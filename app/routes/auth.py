@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 
 from app import db
 from app.models.user import User
-from app.services.auth import authenticate_user
+from app.services.auth import authenticate_user, google_callback, google_login
 
 auth = Blueprint("auth", __name__)
 
@@ -26,6 +26,10 @@ def login():
             flash("Invalid username or password")
 
     return render_template("auth/login.html")
+
+@auth.route("/login/google")
+def login_google():
+    return google_login()
 
 
 @auth.route("/register", methods=["GET", "POST"])
@@ -60,3 +64,7 @@ def logout():
     logout_user()
     flash("Goodbye!")
     return redirect(url_for("main.index"))
+
+@auth.route("/authorize/google")
+def authorize_google():
+    return google_callback()
