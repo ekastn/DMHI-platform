@@ -13,7 +13,13 @@ oauth = OAuth()
 
 
 def create_app():
-    app = Flask(__name__)
+    basedir = os.path.dirname(os.path.abspath(__name__))
+
+    app = Flask(
+        __name__,
+        static_url_path="/",
+        static_folder=os.path.join(basedir, "public"),
+    )
 
     config_type = os.getenv("APP_SETTING", default="config.DevelopmentConfig")
     app.config.from_object(config_type)
