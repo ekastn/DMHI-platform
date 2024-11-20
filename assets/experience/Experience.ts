@@ -1,7 +1,9 @@
 import {
     MathUtils,
     PerspectiveCamera,
+    Raycaster,
     Scene,
+    Vector2,
     WebGLRenderer
 } from "three";
 
@@ -22,10 +24,9 @@ export default class Experience {
         this.camera = createCamera();
         this.renderer = createRenderer();
         this.scene = createScene();
-        this.globe = new Globe();
-        this.control = new Control(this.globe.getMesh());
+        this.globe = new Globe(this.scene);
+        this.control = new Control(this.globe.regions);
 
-        this.scene.add(this.globe.getMesh());
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -37,7 +38,7 @@ export default class Experience {
     }
 
     start() {
-        const minZoomDistance = 15;
+        const minZoomDistance = 10;
         const maxZoomDistance = 25;
 
         window.addEventListener("wheel", (event) => {
@@ -51,7 +52,19 @@ export default class Experience {
 
         window.addEventListener("mouseup", () => this.control.stopDragging());
         window.addEventListener("mousedown", (e: MouseEvent) => this.control.startDragging(e.clientX, e.clientY));
-        window.addEventListener("mousemove", (e: MouseEvent) => this.control.handleMouseMove(e.clientX, e.clientY));
+
+        const raycaster = new Raycaster();
+        const mouse = new Vector2();
+
+        window.addEventListener("mousemove", (e: MouseEvent) => {
+            this.control.handleMouseMove(e.clientX, e.clientY)
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, this.camera);
+            this.globe.handleRaycast(raycaster);
+        });
 
         this.renderer.setAnimationLoop(() => {
             this.update();
