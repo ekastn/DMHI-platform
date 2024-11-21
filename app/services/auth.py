@@ -1,4 +1,5 @@
 from typing import Optional
+from random import randint
 
 from flask import redirect, url_for
 from flask_login import login_user
@@ -11,6 +12,7 @@ google = oauth.register(
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     client_kwargs={"scope": "openid email profile"},
 )
+
 
 def authenticate_user(username: str, password: str) -> Optional[User]:
     user = User.query.filter_by(username=username).first()
@@ -34,7 +36,9 @@ def google_callback():
 
     user = User.query.filter_by(google_id=unique_id).first()
     if not user:
+        # TODO: redirect to user info page to fill the details
         user = User(email=email, google_id=unique_id)
+        user.username = "folks" + str(randint(400, 9000))
         db.session.add(user)
         db.session.commit()
 

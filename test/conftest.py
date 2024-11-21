@@ -29,12 +29,10 @@ def init_db(app):
     with app.app_context():
         db.create_all()
 
-        default_user = User(
-            username="defTestUser", password="userTest1", email="u1@test.com"
-        )
-        second_user = User(
-            username="secTestUser", password="userTest2", email="u2@test.com"
-        )
+        default_user = User(username="defTestUser", email="u1@test.com")
+        default_user.set_password("userTest1")
+        second_user = User(username="secTestUser", email="u2@test.com")
+        default_user.set_password("userTest2")
         db.session.add(default_user)
         db.session.add(second_user)
 
@@ -47,7 +45,9 @@ def init_db(app):
 
 @pytest.fixture(scope="module")
 def new_user():
-    return User(username="usertest", password="test", email="user@test.com")
+    user = User(username="usertest", email="user@test.com")
+    user.set_password("test")
+    return user
 
 
 @pytest.fixture(scope="function")
@@ -57,7 +57,6 @@ def log_in_default_user(client):
         data={
             "username": "defTestUser",
             "password": "userTest1",
-            "email": "u1@test.com",
         },
     )
 
@@ -73,7 +72,6 @@ def log_in_second_user(client):
         data={
             "username": "secTestUser",
             "password": "userTest2",
-            "email": "u2@test.com",
         },
     )
 
