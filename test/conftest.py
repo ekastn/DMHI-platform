@@ -57,7 +57,6 @@ def log_in_default_user(client):
         data={
             "username": "defTestUser",
             "password": "userTest1",
-            "email": "u1@test.com",
         },
     )
 
@@ -73,7 +72,6 @@ def log_in_second_user(client):
         data={
             "username": "secTestUser",
             "password": "userTest2",
-            "email": "u2@test.com",
         },
     )
 

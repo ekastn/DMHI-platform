@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required, login_user, logout_user, current_user
+from flask_login import current_user, login_required, login_user, logout_user
 
 from app import db
 from app.models.user import User
@@ -27,6 +27,7 @@ def login():
 
     return render_template("auth/login.html")
 
+
 @auth.route("/login/google")
 def login_google():
     return google_login()
@@ -40,14 +41,12 @@ def register():
 
     if request.method == "POST":
         username = request.form["username"]
-        email = request.form["email"]
         password = request.form["password"]
-        if User.query.filter(
-            (User.username == username) | (User.email == email)
-        ).first():
+        if User.query.filter(User.username == username).first():
             flash("Username or email already taken")
         else:
-            user = User(username=username, email=email, password=password)
+            user = User(username=username)
+            user.set_password(password)
             db.session.add(user)
             db.session.commit()
 
@@ -64,6 +63,7 @@ def logout():
     logout_user()
     flash("Goodbye!")
     return redirect(url_for("main.index"))
+
 
 @auth.route("/authorize/google")
 def authorize_google():
