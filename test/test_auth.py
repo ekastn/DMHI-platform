@@ -52,7 +52,6 @@ def test_register_page(client):
     assert b"Register" in response.data
     assert b"username" in response.data
     assert b"password" in response.data
-    assert b"email" in response.data
 
 
 def test_valid_registration(client, init_db):

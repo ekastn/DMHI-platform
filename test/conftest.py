@@ -32,7 +32,7 @@ def init_db(app):
         default_user = User(username="defTestUser", email="u1@test.com")
         default_user.set_password("userTest1")
         second_user = User(username="secTestUser", email="u2@test.com")
-        default_user.set_password("userTest2")
+        second_user.set_password("userTest2")
         db.session.add(default_user)
         db.session.add(second_user)
 
