@@ -1,22 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "index.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
+{% block content %}
 
-<body>
-  <h2>Register</h2>
-  <form method="post">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Register</button>
-  </form>
-  {% for message in get_flashed_messages() %}
-  <h3>{{ message }}</h3>
-  {% endfor %}
-</body>
+<div class="absolute inset-0 flex flex-col min-h-screen">
+  <div class="flex-1 flex items-center justify-center px-4">
+    <div class="space-y-8">
+      <h2 class="text-3xl text-center">Register</h2>
 
-</html>
+      <form method="post" class="mt-8 space-y-6">
+        <div class="space-y-4">
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            class="w-full h-14 p-4 bg-transparent border border-gray-300"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            class="w-full h-14 p-4 bg-transparent border border-gray-300"
+            required
+          />
+        </div>
+
+        <button type="submit" class="w-full p-4 rounded-full bg-stone-300 hover:bg-gray-400 text-white">
+          Create an account
+        </button>
+      </form>
+      <p class="text-center text-gray-400">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}" class="underline underline-offset-2 text-gray-800">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+{% for message in get_flashed_messages() %}
+<h3>{{ message }}</h3>
+{% endfor %}
+
+{% endblock %}

@@ -14,9 +14,13 @@
 </head>
 
 <body class="bg-black">
-  <h1 class="text-black absolute text-3xl">DMHI Platform</h1>
 
-  <div id="experience-container" class="w-screen h-screen"></div>
+  <main>
+    <div id="experience-container" class="w-screen h-screen"></div>
+    {% block content %}
+    {% endblock %}
+  </main>
+
 
   <script type="module" src="{{ asset('main.ts') }}"></script>
   {% for message in get_flashed_messages() %}
