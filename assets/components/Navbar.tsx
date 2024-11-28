@@ -2,7 +2,7 @@ import { Component } from "solid-js";
 
 const Navbar: Component = () => {
     return (
-        <div class="navbar px-4 py-2 bg-transparent">
+        <div class="navbar select-none px-4 py-2 bg-transparent">
             <div class="navbar-start">
                 <h2 class="font-bold text-xl">Voixes</h2>
             </div>
