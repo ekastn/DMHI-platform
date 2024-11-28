@@ -1,12 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: [
-        "./app/templates/**/*.html",
-        "./assets/**/*.{js,ts,jsx,tsx}"
-    ],
+    content: ["./app/templates/**/*.html", "./assets/**/*.{js,ts,jsx,tsx}"],
 
     theme: {
         extend: {},
     },
-    plugins: [],
+    plugins: [require("daisyui")],
+    daisyui: {
+        themes: ["autumn"],
+    },
 };

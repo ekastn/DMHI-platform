@@ -1,10 +1,11 @@
 import { Component } from "solid-js";
+import Navbar from "./components/Navbar";
 
 const App: Component = () => {
     return (
-        <div class="bg-slate-900 h-screen">
-            <h1 class="text-6xl text-white">hello solid</h1>
-        </div>
+        <main class="h-screen">
+            <Navbar />
+        </main>
     );
 };
 
