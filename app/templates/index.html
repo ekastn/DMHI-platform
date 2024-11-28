@@ -8,24 +8,13 @@
   {%- if not is_production %}
   <script type="module" src="{{ asset('@vite/client') }}"></script>
   {%- endif %}
-  <link rel="stylesheet" href="{{ asset('styles.css') }}" />
 
   <title>DMHI Platform</title>
 </head>
 
-<body class="bg-black">
-
-  <main>
-    <div id="experience-container" class="w-screen h-screen"></div>
-    {% block content %}
-    {% endblock %}
-  </main>
-
-
-  <script type="module" src="{{ asset('main.ts') }}"></script>
-  {% for message in get_flashed_messages() %}
-  <h3>{{ message }}</h3>
-  {% endfor %}
+<body>
+  <div id="root"></div>
+  <script type="module" src="{{ asset('index.tsx') }}"></script>
 </body>
 
 </html>
