@@ -1,6 +1,7 @@
 import earcut from "earcut";
 import {
     BufferGeometry,
+    DoubleSide,
     Float32BufferAttribute,
     Group,
     Line,
@@ -63,19 +64,18 @@ export default class Globe {
                 });
             }
         });
-        console.log(this.regions);
     }
 
     private addRegion(coords: Coordinates, radius: number) {
         // const geometry = this.createRegionGeometry(coords, radius);
         // const material = new MeshBasicMaterial({
-        //     color: this.baseColor,
+        //     color: 0xff0000,
         //     side: DoubleSide,
         // });
         // const mesh = new Mesh(geometry, material);
         // mesh.name = "land";
         // this.regions.add(mesh);
-        this.drawOutlineRegion(coords, radius - 0.1);
+        this.drawOutlineRegion(coords, radius + 0.01);
     }
 
     private drawOutlineRegion(coords: Coordinates, radius: number) {

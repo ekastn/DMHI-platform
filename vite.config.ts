@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 import path from "node:path";
+import solidPlugin from "vite-plugin-solid";
 
 import { defineConfig } from "vite";
 
@@ -11,12 +12,13 @@ export default defineConfig({
         manifest: "manifest.json",
         assetsDir: "bundled",
         rollupOptions: {
-            input: ["assets/main.ts", "assets/styles.css"],
+            input: ["assets/index.tsx", "assets/styles.css"],
         },
         emptyOutDir: true,
         copyPublicDir: false,
     },
     test: {
-        root: "./test"
+        root: "./test",
     },
+    plugins: [solidPlugin()],
 });
