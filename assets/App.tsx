@@ -14,9 +14,10 @@ const App: ParentComponent = (props) => {
     return (
         <div class="w-screen h-screen overflow-hidden">
             <Navbar />
+            <div class="absolute inset-0 w-screen h-screen overflow-hidden vx-radial -z-50" />
             <main class="w-screen h-screen">
                 <canvas
-                    class="absolute select-none w-screen h-screen inset-0 -z-50"
+                    class="absolute select-none w-screen h-screen inset-0 -z-30"
                     ref={worldRef!}
                 />
                 {props.children}
