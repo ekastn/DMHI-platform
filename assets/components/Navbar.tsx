@@ -1,10 +1,11 @@
+import { A } from "@solidjs/router";
 import { Component } from "solid-js";
 
 const Navbar: Component = () => {
     return (
         <div class="navbar select-none px-4 py-2 bg-transparent">
             <div class="navbar-start">
-                <h2 class="font-bold text-xl">Voixes</h2>
+                <A href="/" class="font-bold text-xl">Voixes</A>
             </div>
             <div class="navbar-center space-x-2 text-md">
                 <a>Location</a>
@@ -29,7 +30,7 @@ const Navbar: Component = () => {
                 </svg>
             </div>
             <div class="navbar-end">
-                <a class="cursor-pointer hover:underline">Log in</a>
+                <A href="/login" class="cursor-pointer hover:underline">Log in</A>
             </div>
         </div>
     );

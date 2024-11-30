@@ -1,10 +1,10 @@
-import { Component, onMount } from "solid-js";
+import { onMount, ParentComponent } from "solid-js";
+
 import Navbar from "./components/Navbar";
 import World from "./world/World";
 
-const App: Component = () => {
+const App: ParentComponent = (props) => {
     let worldRef: HTMLCanvasElement;
-    let navbarRef: HTMLDivElement;
 
     onMount(() => {
         const world = new World(worldRef);
@@ -12,10 +12,16 @@ const App: Component = () => {
     });
 
     return (
-        <main class="w-screen h-screen">
-            <Navbar ref={navbarRef} />
-            <canvas class="absolute select-none w-screen h-screen inset-0 -z-50" ref={worldRef} />
-        </main>
+        <div class="w-screen h-screen overflow-hidden">
+            <Navbar />
+            <main class="w-screen h-screen">
+                <canvas
+                    class="absolute select-none w-screen h-screen inset-0 -z-50"
+                    ref={worldRef!}
+                />
+                {props.children}
+            </main>
+        </div>
     );
 };
 
