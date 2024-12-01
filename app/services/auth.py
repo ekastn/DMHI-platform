@@ -1,5 +1,5 @@
-from typing import Optional
 from random import randint
+from typing import Dict, Optional
 
 from flask import redirect, url_for
 from flask_login import login_user
@@ -19,6 +19,10 @@ def authenticate_user(username: str, password: str) -> Optional[User]:
     if user and user.check_password(password):
         return user
     return None
+
+
+def user_payload(user: User) -> Dict[str, str | int]:
+    return {"id": user.id, "username": user.username}
 
 
 def google_login():
