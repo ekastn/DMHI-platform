@@ -28,7 +28,7 @@ export default class World {
         this.control = new Control(this.globe.regions);
 
         this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
-        this.renderer.setPixelRatio(this.canvas.devicePixelRatio);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
 
         this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
         this.camera.updateProjectionMatrix();
@@ -56,8 +56,8 @@ export default class World {
         window.addEventListener("mousemove", (e: MouseEvent) => {
             this.control.handleMouseMove(e.clientX, e.clientY)
 
-            mouse.x = (e.clientX / window.clientWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.clientHeight) * 2 + 1;
+            mouse.x = (e.clientX / this.canvas.clientWidth) * 2 - 1;
+            mouse.y = -(e.clientY / this.canvas.clientHeight) * 2 + 1;
 
             raycaster.setFromCamera(mouse, this.camera);
             this.globe.handleRaycast(raycaster);

@@ -1,15 +1,12 @@
-import earcut from "earcut";
 import {
-    BufferGeometry,
-    DoubleSide,
-    Float32BufferAttribute,
+    BufferGeometry, Float32BufferAttribute,
     Group,
     Line,
     LineBasicMaterial,
     Mesh,
     MeshBasicMaterial,
     Raycaster,
-    Scene,
+    Scene
 } from "three";
 
 import { FeatureCollection, MultiPolygon, Polygon, Position } from "geojson";
@@ -41,8 +38,8 @@ export default class Globe {
     public handleRaycast(raycaster: Raycaster) {
         const intersects = raycaster.intersectObjects(this.regions.children, true);
 
-        this.regions.children.forEach((region: Mesh) => {
-            const material = region.material as MeshBasicMaterial;
+        this.regions.children.forEach((region) => {
+            const material = (region as Mesh).material as MeshBasicMaterial;
             if (region.name == "land") material.color.set(this.baseColor);
         });
 
@@ -90,35 +87,35 @@ export default class Globe {
         this.regions.add(new Line(geometry, material));
     }
 
-    private createRegionGeometry(coords: Coordinates, radius: number) {
-        const vertices: number[] = [];
-        const holes: number[] = [];
-        const flattenedVertices: number[] = [];
-
-        coords.forEach((ring, ringIndex) => {
-            const startIdx = flattenedVertices.length / 2;
-
-            ring.forEach(([lng, lat]) => {
-                const vector = latLngToVector3(lat, lng, radius);
-                vertices.push(vector.x, vector.y, vector.z);
-
-                // For Earcut, flatten lat/lng for triangulation
-                flattenedVertices.push(vector.x, vector.y);
-            });
-
-            if (ringIndex > 0) {
-                holes.push(startIdx);
-            }
-        });
-
-        const indices = earcut(flattenedVertices, holes);
-
-        const geometry = new BufferGeometry();
-        geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-        geometry.setIndex(indices);
-
-        return geometry;
-    }
+    // private createRegionGeometry(coords: Coordinates, radius: number) {
+    //     const vertices: number[] = [];
+    //     const holes: number[] = [];
+    //     const flattenedVertices: number[] = [];
+    //
+    //     coords.forEach((ring, ringIndex) => {
+    //         const startIdx = flattenedVertices.length / 2;
+    //
+    //         ring.forEach(([lng, lat]) => {
+    //             const vector = latLngToVector3(lat, lng, radius);
+    //             vertices.push(vector.x, vector.y, vector.z);
+    //
+    //             // For Earcut, flatten lat/lng for triangulation
+    //             flattenedVertices.push(vector.x, vector.y);
+    //         });
+    //
+    //         if (ringIndex > 0) {
+    //             holes.push(startIdx);
+    //         }
+    //     });
+    //
+    //     const indices = earcut(flattenedVertices, holes);
+    //
+    //     const geometry = new BufferGeometry();
+    //     geometry.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+    //     geometry.setIndex(indices);
+    //
+    //     return geometry;
+    // }
 
     async loadGeoJson(path: string) {
         const response = await fetch(path);
