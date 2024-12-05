@@ -1,29 +1,10 @@
 import { A } from "@solidjs/router";
 import { FaSolidKey, FaSolidUser } from "solid-icons/fa";
 import { Component } from "solid-js";
-import { createStore } from "solid-js/store";
-import { FormSubmitEventType, InputEventType } from "../../types/events";
-
-type RegisterForm = {
-    username: string;
-    password: string;
-};
+import { useRegister } from "./useRegister";
 
 const Register: Component = () => {
-    const [fields, setFields] = createStore<RegisterForm>({
-        username: "",
-        password: "",
-    });
-
-    const handleInput = (e: InputEventType) => {
-        const { name, value } = e.currentTarget;
-        setFields(name as keyof RegisterForm, value);
-    };
-
-    const handleSubmit = (e: FormSubmitEventType) => {
-        e.preventDefault();
-        console.log(JSON.stringify(fields));
-    };
+    const { isLoading, handleInput, handleSubmit } = useRegister();
 
     return (
         <div class="absolute flex items-center justify-center w-screen h-screen inset-0">
@@ -40,6 +21,7 @@ const Register: Component = () => {
                                 type="text"
                                 class="grow"
                                 placeholder="Username"
+                                required
                             />
                         </label>
                         <label class="input input-lg input-bordered flex items-center gap-4 bg-transparent">
@@ -50,11 +32,20 @@ const Register: Component = () => {
                                 type="password"
                                 class="grow"
                                 placeholder="Password"
+                                required
                             />
                         </label>
 
-                        <button type="submit" class="btn btn-lg btn-neutral w-full rounded-full">
-                            Create new account
+                        <button
+                            type="submit"
+                            disabled={isLoading()}
+                            class="btn btn-lg btn-neutral w-full rounded-full"
+                        >
+                            {!isLoading() ? (
+                                "Create new account"
+                            ) : (
+                                <span class="loading loading-spinner loading-md"></span>
+                            )}
                         </button>
                     </form>
                     <p class="text-center text-gray-400">

@@ -2,29 +2,10 @@ import { A } from "@solidjs/router";
 import { AiOutlineGoogle } from "solid-icons/ai";
 import { FaSolidKey, FaSolidUser, FaSolidUserPlus } from "solid-icons/fa";
 import { Component } from "solid-js";
-import { createStore } from "solid-js/store";
-import { FormSubmitEventType, InputEventType } from "../../types/events";
-
-type LoginForm = {
-    username: string;
-    password: string;
-};
+import { useLogin } from "./useLogin";
 
 const Login: Component = () => {
-    const [fields, setFields] = createStore<LoginForm>({
-        username: "",
-        password: "",
-    });
-
-    const handleInput = (e: InputEventType) => {
-        const { name, value } = e.currentTarget;
-        setFields(name as keyof LoginForm, value);
-    };
-
-    const handleSubmit = (e: FormSubmitEventType) => {
-        e.preventDefault();
-        console.log(JSON.stringify(fields));
-    };
+    const { isLoading, handleInput, handleSubmit } = useLogin();
 
     return (
         <div class="absolute flex items-center justify-center w-screen h-screen inset-0">
@@ -56,8 +37,16 @@ const Login: Component = () => {
                             </label>
                         </div>
 
-                        <button type="submit" class="btn btn-lg btn-neutral w-full rounded-full">
-                            Log in
+                        <button
+                            type="submit"
+                            disabled={isLoading()}
+                            class="btn btn-lg btn-neutral w-full rounded-full"
+                        >
+                            {!isLoading() ? (
+                                "Log in"
+                            ) : (
+                                <span class="loading loading-spinner loading-md"></span>
+                            )}
                         </button>
                     </form>
                 </div>
