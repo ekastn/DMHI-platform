@@ -1,31 +1,39 @@
-import axios from "axios";
-import { catchError } from "../utils/common";
+import axios, { isAxiosError } from "axios";
 import { APIResponseType } from "../types/api";
+import { UserType } from "../types/user.";
+import { catchError } from "../utils/common";
 
-export const loginUser = async (username: string, password: string) => {
-    const [error, res] = await catchError(
-        axios.post<APIResponseType<any>>("/auth/login", { username, password })
-    );
-    if (error) {
-        console.log(error);
-    }
-    return res?.data;
+type UserPayload = { user: UserType };
+
+export const loginApi = async (username: string, password: string) => {
+    const { data } = await axios.post<APIResponseType<UserPayload>>("/auth/login", {
+        username,
+        password,
+    });
+    return data;
 };
 
-export const registerUser = async (username: string, password: string) => {
-    const [error, res] = await catchError(
-        axios.post<APIResponseType<any>>("/auth/register", { username, password })
-    );
-    if (error) {
-        console.log(error);
-    }
-    return res?.data;
+export const registerApi = async (username: string, password: string) => {
+    const { data } = await axios.post<APIResponseType<UserPayload>>("/auth/register", {
+        username,
+        password,
+    });
+    return data;
 };
 
-export const logoutUser = async () => {
-    const [error, res] = await catchError(axios.get<APIResponseType<null>>("/auth/logout"));
-    if (error) {
+export const logoutApi = async () => {
+    const [error] = await catchError(axios.get<APIResponseType<null>>("/auth/logout"));
+    if (isAxiosError<APIResponseType>(error)) {
         console.log(error);
+    } else {
+        throw error;
     }
-    return res;
+};
+
+export const checkAuthApi = async () => {
+    const [error, res] = await catchError(
+        axios.get<APIResponseType<UserPayload | null>>("/auth/me")
+    );
+    if (error) console.log(error);
+    return res?.data;
 };

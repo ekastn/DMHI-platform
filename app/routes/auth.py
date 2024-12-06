@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from flask_login import login_required, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 
 from app import db
 from app.helper.http import create_response
@@ -12,6 +12,13 @@ from app.services.auth import (
 )
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+@auth.route("/me")
+def user_info():
+    if current_user.is_authenticated:
+        return create_response(success=True, message="User authenticated", data={"user": user_payload(current_user)})
+    return create_response(success=False, message="User not authenticated")
 
 
 @auth.route("/login", methods=["POST"])
@@ -40,7 +47,7 @@ def register():
     password = data.get("password")
 
     if User.query.filter(User.username == username).first():
-        return create_response(success=False, message="Username already taken")
+        return create_response(success=False, message="Username already taken", status_code=409)
     else:
         user = User(username=username)
         user.set_password(password)

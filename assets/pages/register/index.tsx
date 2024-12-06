@@ -1,10 +1,11 @@
 import { A } from "@solidjs/router";
 import { FaSolidKey, FaSolidUser } from "solid-icons/fa";
-import { Component } from "solid-js";
+import { Component, Show } from "solid-js";
 import { useRegister } from "./useRegister";
+import { BiRegularErrorCircle } from "solid-icons/bi";
 
 const Register: Component = () => {
-    const { isLoading, handleInput, handleSubmit } = useRegister();
+    const { isLoading, handleInput, handleSubmit, error } = useRegister();
 
     return (
         <div class="absolute flex items-center justify-center w-screen h-screen inset-0">
@@ -13,6 +14,12 @@ const Register: Component = () => {
                     <h2 class="text-3xl text-center">Register</h2>
 
                     <form onSubmit={handleSubmit} class="mt-8 space-y-6">
+                        <Show when={error()}>
+                            <div role="alert" class="alert">
+                                <BiRegularErrorCircle />
+                                <span>{error()}</span>
+                            </div>
+                        </Show>
                         <label class="input input-lg input-bordered flex items-center gap-4 bg-transparent">
                             <FaSolidUser />
                             <input

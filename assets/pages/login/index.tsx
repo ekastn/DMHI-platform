@@ -1,11 +1,12 @@
 import { A } from "@solidjs/router";
 import { AiOutlineGoogle } from "solid-icons/ai";
 import { FaSolidKey, FaSolidUser, FaSolidUserPlus } from "solid-icons/fa";
-import { Component } from "solid-js";
+import { Component, Show } from "solid-js";
 import { useLogin } from "./useLogin";
+import { BiRegularErrorCircle } from "solid-icons/bi";
 
 const Login: Component = () => {
-    const { isLoading, handleInput, handleSubmit } = useLogin();
+    const { isLoading, handleInput, handleSubmit, error } = useLogin();
 
     return (
         <div class="absolute flex items-center justify-center w-screen h-screen inset-0">
@@ -15,6 +16,13 @@ const Login: Component = () => {
 
                     <form onSubmit={handleSubmit} class="form-control mt-8 space-y-6">
                         <div class="space-y-4">
+                            <Show when={error()}>
+                                <div role="alert" class="alert">
+                                    <BiRegularErrorCircle />
+                                    <span>{error()}</span>
+                                </div>
+                            </Show>
+
                             <label class="input input-lg input-bordered flex items-center gap-4 bg-transparent">
                                 <FaSolidUser />
                                 <input
