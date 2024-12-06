@@ -9,7 +9,7 @@ const Login: Component = () => {
     const { isLoading, handleInput, handleSubmit, error } = useLogin();
 
     return (
-        <div class="absolute flex items-center justify-center w-screen h-screen inset-0">
+        <div class="absolute flex items-center justify-center w-screen h-screen inset-0 backdrop-blur-lg">
             <div class="flex flex-1 w-full max-w-5xl justify-center items-center gap-8">
                 <div class="space-y-8 w-full">
                     <h2 class="text-3xl text-center">Log in</h2>

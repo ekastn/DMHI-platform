@@ -10,7 +10,7 @@ const App: ParentComponent = (props) => {
             <div class="w-screen h-screen overflow-hidden">
                 <Navbar />
                 <div class="absolute inset-0 w-screen h-screen overflow-hidden vx-radial -z-50" />
-                <main class="w-screen h-screen">
+                <main>
                     <Experience />
                     {props.children}
                 </main>

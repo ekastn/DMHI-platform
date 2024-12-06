@@ -8,7 +8,7 @@ const Register: Component = () => {
     const { isLoading, handleInput, handleSubmit, error } = useRegister();
 
     return (
-        <div class="absolute flex items-center justify-center w-screen h-screen inset-0">
+        <div class="absolute flex items-center justify-center w-screen h-screen inset-0 backdrop-blur-lg">
             <div class="flex-1 flex items-center justify-center px-4">
                 <div class="space-y-8">
                     <h2 class="text-3xl text-center">Register</h2>
