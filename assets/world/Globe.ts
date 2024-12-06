@@ -29,7 +29,7 @@ export default class Globe {
         this.highlightColor = 0xccd5ae;
         this.regions = new Group();
 
-        this.loadGeoJson("/geo/countries.json").then((geoData) =>
+        this.loadGeoJson("/public/geo/countries.json").then((geoData) =>
             this.addRegions(geoData, this.radius)
         );
         scene.add(this.regions);
