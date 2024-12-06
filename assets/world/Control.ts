@@ -1,53 +1,39 @@
-import { Object3D, Vector2 } from "three";
+import { MathUtils, PerspectiveCamera, Vector3 } from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export default class Control {
-    private isDragging;
-    private lastMousePosition;
-    private momentum;
-    private readonly rotationSpeedFactor;
-    private readonly dampingFactor;
+    private orbitControl: OrbitControls;
+    private minDistance = 12;
+    private maxDistance = 30;
+    private baseRotationSpeed = 1;
+    private cameraTarget = new Vector3(0, 0, 0);
 
-    private readonly target: Object3D;
+    constructor(
+        private camera: PerspectiveCamera,
+        target: HTMLElement
+    ) {
+        this.orbitControl = new OrbitControls(camera, target);
+        this.orbitControl.enableDamping = true;
+        this.orbitControl.dampingFactor = 0.1;
 
-    constructor(target: Object3D, rotationSpeedFactor = 0.005, dampingFactor = 0.95) {
-        this.isDragging = false;
-        this.lastMousePosition = new Vector2();
-        this.momentum = new Vector2();
-        this.target = target;
-        this.rotationSpeedFactor = rotationSpeedFactor;
-        this.dampingFactor = dampingFactor;
-    }
+        this.orbitControl.minDistance = this.minDistance;
+        this.orbitControl.maxDistance = this.maxDistance;
 
-    startDragging(x: number, y: number) {
-        this.isDragging = true;
-        this.lastMousePosition.set(x, y);
-    }
+        this.orbitControl.enablePan = false;
 
-    stopDragging() {
-        this.isDragging = false;
-    }
-
-    handleMouseMove(x: number, y: number) {
-        if (this.isDragging) {
-            const dx = x - this.lastMousePosition.x;
-            const dy = y - this.lastMousePosition.y;
-
-            const rotationX = dy * this.rotationSpeedFactor;
-            const rotationY = dx * this.rotationSpeedFactor;
-
-            this.target.rotation.x += rotationX;
-            this.target.rotation.y += rotationY;
-            this.momentum.set(rotationY, rotationX);
-
-            this.lastMousePosition.set(x, y);
-        }
+        this.orbitControl.addEventListener("change", () => {
+            this.adjustRotationSpeed();
+        });
     }
 
     update() {
-        if (!this.isDragging) {
-            this.target.rotation.x += this.momentum.y;
-            this.target.rotation.y += this.momentum.x;
-            this.momentum.multiplyScalar(this.dampingFactor);
-        }
+        this.orbitControl.update();
+    }
+
+    private adjustRotationSpeed() {
+        const distance = this.camera.position.distanceTo(this.cameraTarget);
+        const mappedDistance = MathUtils.mapLinear(distance, this.minDistance, this.maxDistance, 0.07, 0.5)
+        this.orbitControl.rotateSpeed = this.baseRotationSpeed * mappedDistance;
+        console.log(this.orbitControl.rotateSpeed, distance, mappedDistance)
     }
 }
