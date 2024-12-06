@@ -1,4 +1,4 @@
-export const catchError = <T, E>(
+export const catchError = <T, E extends new (message?: string) => Error>(
     promise: Promise<T>,
     errorsToCatch?: E[]
 ): Promise<[undefined, T] | [Error]> => {
