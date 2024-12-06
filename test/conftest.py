@@ -53,7 +53,7 @@ def new_user():
 @pytest.fixture(scope="function")
 def log_in_default_user(client):
     client.post(
-        "/login",
+        "/auth/login",
         data={
             "username": "defTestUser",
             "password": "userTest1",
@@ -62,13 +62,13 @@ def log_in_default_user(client):
 
     yield
 
-    client.get("/logout")
+    client.get("/auth/logout")
 
 
 @pytest.fixture(scope="function")
 def log_in_second_user(client):
     client.post(
-        "/login",
+        "/auth/login",
         data={
             "username": "secTestUser",
             "password": "userTest2",
@@ -77,4 +77,4 @@ def log_in_second_user(client):
 
     yield
 
-    client.get("/logout")
+    client.get("/auth/logout")

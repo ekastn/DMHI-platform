@@ -12,7 +12,7 @@ export default defineConfig({
         manifest: "manifest.json",
         assetsDir: "bundled",
         rollupOptions: {
-            input: ["assets/index.tsx", "assets/styles.css"],
+            input: ["assets/index.tsx", "assets/index.css"],
         },
         emptyOutDir: true,
         copyPublicDir: false,

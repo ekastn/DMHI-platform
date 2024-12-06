@@ -1,21 +1,21 @@
-import { Component, onMount } from "solid-js";
+import { ParentComponent } from "solid-js";
+
+import Experience from "./components/Experience";
 import Navbar from "./components/Navbar";
-import World from "./world/World";
+import { AuthProvider } from "./context/AuthContext";
 
-const App: Component = () => {
-    let worldRef: HTMLCanvasElement;
-    let navbarRef: HTMLDivElement;
-
-    onMount(() => {
-        const world = new World(worldRef);
-        world.start();
-    });
-
+const App: ParentComponent = (props) => {
     return (
-        <main class="w-screen h-screen">
-            <Navbar ref={navbarRef} />
-            <canvas class="absolute select-none w-screen h-screen inset-0 -z-50" ref={worldRef} />
-        </main>
+        <AuthProvider>
+            <div class="w-screen h-screen overflow-hidden">
+                <Navbar />
+                <div class="absolute inset-0 w-screen h-screen overflow-hidden vx-radial -z-50" />
+                <main class="w-screen h-screen">
+                    <Experience />
+                    {props.children}
+                </main>
+            </div>
+        </AuthProvider>
     );
 };
 

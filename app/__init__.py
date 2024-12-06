@@ -17,7 +17,6 @@ def create_app():
 
     app = Flask(
         __name__,
-        static_url_path="/",
         static_folder=os.path.join(basedir, "public"),
     )
 
@@ -35,7 +34,6 @@ def initialize_extensions(app):
     oauth.init_app(app)
 
     login_manager.init_app(app)
-    login_manager.login_view = "auth.login"
 
     basedir = os.path.abspath(os.path.dirname(__file__))
     migrate.init_app(app, db, directory=basedir + "/migrations")
