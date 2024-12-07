@@ -8,16 +8,12 @@ services:
       - 5000:5000
     secrets:
       - db-password
-      - flask-secret
-      - google-id
-      - google-secret
-    env_file:
-      - .env.prod
-    # environment:
-      # - SECRET_KEY=/run/secrets/flask-secret
-      # - GOOGLE_CLIENT_ID=/run/secrets/google-id
-      # - GOOGLE_CLIENT_SECRET=/run/secrets/google-secret
-      # - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    env_file: .env.prod
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 
   db:
     image: postgres
@@ -43,9 +39,3 @@ volumes:
 secrets:
   db-password:
     file: secrets/db-password.txt
-  flask-secret:
-    file: secrets/flask-secret.txt
-  google-id:
-    file: secrets/google-id.txt
-  google-secret:
-    file: secrets/google-secret.txt
