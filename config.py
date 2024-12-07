@@ -2,7 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+if os.getenv("FLASK_ENV") != "production":
+    load_dotenv()
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 TEST_DB = f"sqlite:///{os.path.join(BASEDIR, 'instance', 'test.db')}"

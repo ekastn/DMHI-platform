@@ -1,0 +1,14 @@
+node_modules
+dist
+instance
+test
+secrets
+__pycache__
+.venv
+.git
+.gitignore
+.env
+.env.example
+README.md
+.vscode
+.pytest_cache

@@ -25,5 +25,8 @@ build
 __pycache__
 .venv
 .env
+.env.prod
 
 instance/
+
+secrets
