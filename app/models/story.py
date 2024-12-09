@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
 
-class Story(db.Model, UserMixin):
+class Story(db.Model):
     __tablename__ = "stories"
 
     id: Mapped[int] = mapped_column("story_id", primary_key=True)
@@ -17,8 +17,15 @@ class Story(db.Model, UserMixin):
     created_at: Mapped[types.DateTime] = mapped_column(types.DateTime(255), nullable=True,default=func.current_timestamp())
     updated_at: Mapped[types.DateTime] = mapped_column(types.DateTime(100), nullable=True,default=func.current_timestamp())
 
+    def __init__(self, tittle: str, content: str):
+        self.tittle = tittle
+        self.content = content
+        self.created_at = func.current_timestamp()
+        self.updated_at = func.current_timestamp()
+
     def __repr__(self):
         return f"<Story: {self.tittle}>"
     
+
 
 

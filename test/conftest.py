@@ -1,9 +1,10 @@
 import os
-
 import pytest
 
 from app import create_app, db
 from app.models.user import User
+from app.models.story import Story
+from app.models.pin import Pin
 
 
 @pytest.fixture()
@@ -48,6 +49,16 @@ def new_user():
     user = User(username="usertest", email="user@test.com")
     user.set_password("test")
     return user
+
+@pytest.fixture(scope="module")
+def new_story():
+    story = Story(tittle="Test Story", content="This is a test story")
+    return story
+
+@pytest.fixture(scope="module")
+def new_pin():
+    pin = Pin(longitude=10.01 ,latitude=10.01)
+    return pin
 
 
 @pytest.fixture(scope="function")
