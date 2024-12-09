@@ -7,7 +7,9 @@ import { BiRegularErrorCircle } from "solid-icons/bi";
 
 const Login: Component = () => {
     const { isLoading, handleInput, handleSubmit, error } = useLogin();
-
+    const loginGoogle = () => {
+        window.location
+    };
     return (
         <div class="absolute flex items-center justify-center w-screen h-screen inset-0 backdrop-blur-lg">
             <div class="flex flex-1 w-full max-w-5xl justify-center items-center gap-8">
@@ -62,7 +64,7 @@ const Login: Component = () => {
                 <div class="divider divider-horizontal">OR</div>
 
                 <div class="flex flex-col space-y-4 w-full">
-                    <button class="btn btn-lg btn-outline rounded-full bg-base-100">
+                    <button onclick={loginGoogle} class="btn btn-lg btn-outline rounded-full bg-base-100">
                         <AiOutlineGoogle />
                         Continue with Google
                     </button>
