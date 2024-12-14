@@ -1,6 +1,6 @@
 from flask_login import UserMixin
-from sqlalchemy import func, types
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey, func, types
+from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.sqltypes import String
 from typing_extensions import Optional
@@ -16,6 +16,12 @@ class Story(db.Model):
     content: Mapped[str] = mapped_column(String(1024), unique=False, nullable=False)
     created_at: Mapped[types.DateTime] = mapped_column(types.DateTime(255), nullable=True,default=func.current_timestamp())
     updated_at: Mapped[types.DateTime] = mapped_column(types.DateTime(100), nullable=True,default=func.current_timestamp())
+    user_id: Mapped[int] = mapped_column(types.Integer, ForeignKey("users.user_id"), nullable=False)
+
+    pin: Mapped["Pin"] = relationship(back_populates="story")
+
+    # Relationship
+    user: Mapped["User"]  = relationship(back_populates="stories")
 
     def __init__(self, tittle: str, content: str):
         self.tittle = tittle

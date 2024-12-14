@@ -26,6 +26,10 @@ def create_app():
     initialize_extensions(app)
     register_blueprint(app)
 
+    from app.models.user import User
+    from app.models.story import Story
+    from app.models.pin import Pin
+
     return app
 
 
