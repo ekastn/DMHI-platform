@@ -34,6 +34,5 @@ export default class Control {
         const distance = this.camera.position.distanceTo(this.cameraTarget);
         const mappedDistance = MathUtils.mapLinear(distance, this.minDistance, this.maxDistance, 0.07, 0.5)
         this.orbitControl.rotateSpeed = this.baseRotationSpeed * mappedDistance;
-        console.log(this.orbitControl.rotateSpeed, distance, mappedDistance)
     }
 }

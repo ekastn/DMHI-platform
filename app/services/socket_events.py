@@ -1,7 +1,6 @@
-import logging
-from enum import Enum
-
+from flask import current_app, request
 from flask_login import current_user
+from flask_migrate import current
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from app import db, redis
@@ -36,11 +35,11 @@ def message_payload(message: Message):
 
 @socketio.on("connect")
 def handle_connect():
-    print(f"{current_user.username} connected")
+    current_app.logger.info(f"{current_user.username} connected")
 
     session_id = request.sid
     redis.set(f"user_online:{current_user.id}", session_id)
-    join_room(sessio_id)
+    join_room(session_id)
 
     notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).all()
 
@@ -53,7 +52,7 @@ def handle_connect():
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print(f"{current_user.username} disconnected")
+    current_app.logger.info(f"{current_user.username} disconnected")
     redis.delete(f"user_online:{current_user.id}")
     leave_room(request.sid)
 
@@ -68,7 +67,7 @@ def handle_enter_chat_room(data):
     messages = Message.query.filter_by(chat_room_id=chat_room_id).all()
 
     for message in messages:
-        if message.user_id != current_user.id:
+        if message.user_id != current_user.id and not message.is_delivered:
             message.is_delivered = True
 
     db.session.commit()

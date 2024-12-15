@@ -3,6 +3,7 @@ import { createContext, createSignal, onMount, Show, useContext } from "solid-js
 import { ParentComponent } from "solid-js/types/server/rendering.js";
 import { checkAuthApi, loginApi, logoutApi, registerApi } from "../services/authService";
 import { UserType } from "../types/user.";
+import { useWebSocket } from "./WebSocketContext";
 
 type AuthContextType = {
     user: UserType | null;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType>();
 export const AuthProvider: ParentComponent = (props) => {
     const [user, setUser] = createSignal<UserType | null>(null);
     const [isReady, setIsReady] = createSignal(false);
+    const { connect, disconnect } = useWebSocket();
 
     const navigate = useNavigate();
 
@@ -24,11 +26,13 @@ export const AuthProvider: ParentComponent = (props) => {
         const localUser = localStorage.getItem("user");
         if (localUser) {
             setUser(JSON.parse(localUser));
+            connect();
         } else {
             checkAuthApi().then((res) => {
                 if (res?.success && res.data?.user) {
                     setUser(res.data.user);
                     localStorage.setItem("user", JSON.stringify(res.data.user));
+                    connect();
                 }
             });
         }
@@ -40,6 +44,7 @@ export const AuthProvider: ParentComponent = (props) => {
         if (res.success) {
             setUser(res.data.user);
             localStorage.setItem("user", JSON.stringify(res.data.user));
+            connect();
             navigate("/");
         }
     };
@@ -54,6 +59,7 @@ export const AuthProvider: ParentComponent = (props) => {
     };
 
     const logout = async () => {
+        disconnect();
         await logoutApi();
         localStorage.removeItem("user");
         setUser(null);
