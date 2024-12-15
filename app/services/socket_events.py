@@ -8,29 +8,17 @@ from app.enums import NotificationType, SocketEventType
 from app.models.chat import ChatParticipant
 from app.models.message import Message
 from app.models.notification import Notification
+from app.models.serializers import serialize_notification, serialize_message
 
 socketio = SocketIO()
 
 
 def notification_payload(notification: Notification):
-    return {
-        "id": notification.id,
-        "type": notification.type.value,
-        "content": notification.content,
-        "isRead": notification.is_read,
-        "createdAt": notification.created_at,
-    }
+    return serialize_notification(notification)
 
 
 def message_payload(message: Message):
-    return {
-        "id": message.id,
-        "chatRoomId": message.chat_room_id,
-        "userId": message.user_id,
-        "content": message.content,
-        "isDelivered": message.is_delivered,
-        "sentAt": message.sent_at,
-    }
+    return serialize_message(message)
 
 
 @socketio.on("connect")

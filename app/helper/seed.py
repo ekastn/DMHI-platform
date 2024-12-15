@@ -11,6 +11,7 @@ from app.models.notification import Notification
 from app.models.pin import Pin
 from app.models.story import Story
 from app.models.user import User
+from app.models.serializers import serialize_user, serialize_story, serialize_pin, serialize_chat_room, serialize_chat_participant, serialize_message, serialize_notification, deserialize_user, deserialize_story, deserialize_pin, deserialize_chat_room, deserialize_chat_participant, deserialize_message, deserialize_notification
 
 
 def seed():
