@@ -2,10 +2,12 @@ import os
 
 from authlib.integrations.flask_client import OAuth
 from flask import Flask
+from flask.cli import AppGroup
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from redis import Redis
+from sqlalchemy.orm.instrumentation import register_class
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -27,6 +29,7 @@ def create_app():
 
     initialize_extensions(app)
     register_blueprint(app)
+    register_cli_commands(app)
 
     from app.models.chat import ChatParticipant, ChatRoom
     from app.models.message import Message
@@ -64,3 +67,14 @@ def register_blueprint(app):
 
     from app.routes.story import story
     app.register_blueprint(story)
+
+def register_cli_commands(app):
+    from app.helper.seed import seed
+
+    seed_cli = AppGroup("seed")
+
+    @seed_cli.command("all")
+    def cli_seed_users():
+        seed()
+
+    app.cli.add_command(seed_cli)
