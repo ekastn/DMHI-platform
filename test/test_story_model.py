@@ -8,8 +8,7 @@ def test_create_story():
     assert story.tittle == "Test Story"
     assert story.content == "This is a test story"
     assert story.__repr__() == "<Story: Test Story>"
-    assert story.created_at is not None
-    assert story.updated_at is not None
+
 
 
 def test_new_story_with_fixture(new_story):

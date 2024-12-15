@@ -1,7 +1,9 @@
 import { RouteDefinition } from "@solidjs/router";
 import Login from "../pages/login";
 import Register from "../pages/register";
-import StoryThreads from "../pages/story";
+import CreateStory from "../pages/createStory";
+import Story from "../pages/story";
+import ProtectedRoute from "./ProtectedRoute";
 
 export const routes: RouteDefinition[] = [
     {
@@ -13,7 +15,11 @@ export const routes: RouteDefinition[] = [
         component: Register,
     },
     {
-        path: "/threads",
-        component: StoryThreads,
+        path: "/create-story",
+        component: () => <ProtectedRoute><CreateStory /></ProtectedRoute>,
+    },
+    {
+        path: "/story/:storyId",
+        component: Story,
     }
 ]

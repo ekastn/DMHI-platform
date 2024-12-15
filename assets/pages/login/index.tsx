@@ -8,7 +8,7 @@ import { BiRegularErrorCircle } from "solid-icons/bi";
 const Login: Component = () => {
     const { isLoading, handleInput, handleSubmit, error } = useLogin();
     const loginGoogle = () => {
-        window.location
+        window.location.href = "/auth/google";
     };
     return (
         <div class="absolute flex items-center justify-center w-screen h-screen inset-0 backdrop-blur-lg">

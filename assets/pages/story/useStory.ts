@@ -1,52 +1,111 @@
-import { createSignal } from "solid-js";
+import { useNavigate, useParams } from "@solidjs/router";
+import { isAxiosError } from "axios";
+import { createSignal, onMount } from "solid-js";
+import { createStore } from "solid-js/store";
+import { APIResponseType } from "../../types/api"; // Adjust import path as needed
+import { catchError } from "../../utils/common"; // Utility function for error handling
+import { readStoryApi, updateStoryApi, deleteStoryApi } from "../../services/storyService";
+import { InputEventTextAreaType, InputEventType } from "../../types/events";
+import { StoryType } from "../../types/story";
 
-export const useStory = () => {
-    const [threads, setThreads] = createSignal<{ id: number; content: string }[]>([]);
-    const [newThread, setNewThread] = createSignal("");
-    const [error, setError] = createSignal("");
-    const [isLoading, setIsLoading] = createSignal(false);
-    let nextId = 1; // To keep track of the next thread ID
+type StoryForm = {
+    title: string;
+    content: string;
+};
 
-    const handleInput = (e: Event) => {
-        const target = e.target as HTMLInputElement;
-        setNewThread(target.value);
-        setError(""); // Clear error on input
+export const useViewStory = () => {
+    const [isLoading, setIsLoading] = createSignal(true);
+    const [error, setError] = createSignal<string | undefined>();
+    const [isEditing, setIsEditing] = createSignal(false);
+    const [story, setStory] = createStore<Partial<StoryType>>({});
+    const [fields, setFields] = createStore<StoryForm>({
+        title: "",
+        content: "",
+    });
+
+    const param = useParams();
+    const storyId = parseInt(param.storyId);
+
+    const navigate = useNavigate();
+
+    onMount(async () => {
+        await fetchStory();
+    })
+    
+    const handleInput = (e: InputEventType | InputEventTextAreaType) => {
+        const { name, value } = e.currentTarget;
+        setFields(name as keyof StoryForm, value);
     };
 
-    const handleSubmit = (e: Event) => {
-        e.preventDefault();
-        if (newThread().trim() === "") {
-            setError("Thread content cannot be empty.");
-            return;
-        }
+    const fetchStory = async () => {
         setIsLoading(true);
-        // Simulate an API call to create a new thread
-        setTimeout(() => {
-            setThreads([...threads(), { id: nextId++, content: newThread() }]);
-            setNewThread("");
+        setError(undefined);
+
+        const [err, res] = await catchError(readStoryApi(storyId));
+
+        if (err && isAxiosError<APIResponseType>(err)) {
+            setError(err.response?.data.message);
+        } else {
+            if (res?.data.story) {
+                setStory(res.data.story);
+                const story = {
+                    title: res.data.story.title,
+                    content: res.data.story.content,
+                }
+                setFields(story);
+            }
+        }
+
+        setIsLoading(false);
+    };
+
+    // Update the story
+    const handleUpdate = async () => {
+        setIsLoading(true);
+        setError(undefined);
+
+        const [err, res] = await catchError(
+            updateStoryApi(storyId, fields.title, fields.content)
+        );
+
+        if (err && isAxiosError<APIResponseType>(err)) {
+            setError(err.response?.data.message);
+        } else {
+            setStory(res?.data.story!);
+            setIsEditing(false);
+        }
+
+        setIsLoading(false);
+    };
+
+    // Delete the story
+    const handleDelete = async () => {
+        if (confirm("Are you sure you want to delete this story?")) {
+            setIsLoading(true);
+            setError(undefined);
+
+            const [err] = await catchError(deleteStoryApi(storyId.toString()));
+
+            if (err && isAxiosError<APIResponseType>(err)) {
+                setError(err.response?.data.message);
+            } else {
+                navigate("/"); 
+            }
+
             setIsLoading(false);
-        }, 1000);
-    };
-
-    const handleUpdate = (id: number, updatedContent: string) => {
-        setThreads(threads().map(thread => 
-            thread.id === id ? { ...thread, content: updatedContent } : thread
-        ));
-    };
-
-    const handleDelete = (id: number) => {
-        setThreads(threads().filter(thread => thread.id !== id));
+        }
     };
 
     return {
-        threads,
-        newThread,
-        error,
+        story,
         isLoading,
-        handleInput,
-        handleSubmit,
+        error,
+        isEditing,
+        setIsEditing,
+        fetchStory,
         handleUpdate,
         handleDelete,
-        setNewThread, // Expose setNewThread if needed
+        fields,
+        handleInput,
     };
 };
