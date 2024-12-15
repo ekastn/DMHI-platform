@@ -1,11 +1,12 @@
 from flask_login import UserMixin
-from sqlalchemy.orm import mapped_column , relationship
+from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.sqltypes import String
-from typing_extensions import Optional, List
+from typing_extensions import List, Optional
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db, login_manager
+
 
 @login_manager.user_loader
 def load_user(id):
@@ -22,6 +23,9 @@ class User(db.Model, UserMixin):
     google_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
     stories: Mapped[List["Story"]] = relationship(back_populates="user")
+    chat_rooms: Mapped[List["ChatParticipant"]] = relationship(back_populates="user")
+    messages: Mapped[List["Message"]] = relationship(back_populates="user")
+    notifications: Mapped[List["Notification"]] = relationship(back_populates="user")
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)

@@ -26,9 +26,12 @@ def create_app():
     initialize_extensions(app)
     register_blueprint(app)
 
-    from app.models.user import User
-    from app.models.story import Story
+    from app.models.chat import ChatParticipant, ChatRoom
+    from app.models.message import Message
+    from app.models.notification import Notification
     from app.models.pin import Pin
+    from app.models.story import Story
+    from app.models.user import User
 
     return app
 
