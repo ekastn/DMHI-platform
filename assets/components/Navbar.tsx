@@ -1,7 +1,9 @@
 import { A } from "@solidjs/router";
+import { AiOutlineMessage } from "solid-icons/ai";
+import { FaRegularCircleUser } from "solid-icons/fa";
+import { IoLocationOutline, IoNotificationsOutline } from "solid-icons/io";
 import { Component, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
-import { IoLocationOutline } from "solid-icons/io";
 
 const Navbar: Component = () => {
     const { isLoggedIn, logout } = useAuth();
@@ -19,16 +21,22 @@ const Navbar: Component = () => {
             </div>
             <div class="navbar-end z-50">
                 <Show
-                    when={!isLoggedIn()}
+                    when={isLoggedIn()}
                     fallback={
-                        <button onClick={() => logout()} class="cursor-pointer hover:underline">
-                            Log out
-                        </button>
+                        <A href="/login" class="cursor-pointer hover:underline">
+                            Log in
+                        </A>
                     }
                 >
-                    <A href="/login" class="cursor-pointer hover:underline">
-                        Log in
+                    <A href="/chats" class="btn btn-ghost">
+                        <AiOutlineMessage class="size-6" />
                     </A>
+                    <A href="" class="btn btn-ghost">
+                        <IoNotificationsOutline class="size-6" />
+                    </A>
+                    <button onClick={() => logout()} class="btn btn-ghost">
+                        <FaRegularCircleUser class="size-6" />
+                    </button>
                 </Show>
             </div>
         </div>
