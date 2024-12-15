@@ -21,8 +21,7 @@ class User(db.Model, UserMixin):
     password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     google_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
-    # Relationship
-    stories: Mapped[List["Story"]] = relationship("Story", back_populates="user")
+    stories: Mapped[List["Story"]] = relationship(back_populates="user")
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
