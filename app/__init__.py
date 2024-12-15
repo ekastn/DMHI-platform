@@ -5,11 +5,13 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from redis import Redis
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 oauth = OAuth()
+redis = Redis()
 
 
 def create_app():
@@ -44,6 +46,10 @@ def initialize_extensions(app):
 
     basedir = os.path.abspath(os.path.dirname(__file__))
     migrate.init_app(app, db, directory=basedir + "/migrations")
+
+    from app.services.socket_events import socketio
+
+    socketio.init_app(app)
 
 
 def register_blueprint(app):
