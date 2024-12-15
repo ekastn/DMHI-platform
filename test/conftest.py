@@ -1,4 +1,5 @@
 import os
+from flask_login import login_user
 import pytest
 
 from app import create_app, db
@@ -24,7 +25,6 @@ def client(app):
 def runner(app):
     return app.test_cli_runner()
 
-
 @pytest.fixture()
 def init_db(app):
     with app.app_context():
@@ -34,12 +34,14 @@ def init_db(app):
         default_user.set_password("userTest1")
         second_user = User(username="secTestUser", email="u2@test.com")
         second_user.set_password("userTest2")
-        db.session.add(default_user)
-        db.session.add(second_user)
+        db.session.add_all([default_user, second_user])
 
+        test_story = Story(tittle="Test Story", content="This is a test story", pin=Pin(latitude=37.7749, longitude=-122.4194), user=default_user)
+
+        db.session.add(test_story)
         db.session.commit()
-
-        yield  # this is where the testing happens!
+      
+        yield  
 
         db.drop_all()
 

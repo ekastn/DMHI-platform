@@ -45,9 +45,13 @@ def initialize_extensions(app):
 
 def register_blueprint(app):
     from app.helper.assets_blueprint import assets_blueprint
-    from app.routes.auth import auth
-    from app.routes.main import main
-
     app.register_blueprint(assets_blueprint)
-    app.register_blueprint(main)
+
+    from app.routes.auth import auth
     app.register_blueprint(auth)
+
+    from app.routes.main import main
+    app.register_blueprint(main)
+
+    from app.routes.story import story
+    app.register_blueprint(story)

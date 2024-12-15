@@ -1,77 +1,101 @@
-# from flask import Blueprint, request
-# from flask_login import current_user, login_required, login_user, logout_user
+from flask import Blueprint, request
+from flask_login import current_user
 
-# from app import db
-# from app.helper.http import create_response
-# from app.models.user import User
-# from app.services.auth import (
-#     authenticate_user,
-#     google_callback,
-#     google_login,
-#     user_payload,
-# )
+from app import db
+from app.helper.http import create_response
+from app.models.story import Story
+from app.models.pin import Pin
 
-# story = Blueprint("story", __name__, url_prefix="/api/story")
+story = Blueprint("story", __name__, url_prefix="/api")
 
-
-# @story.route("/me")
-# def user_info():
-#     if current_user.is_authenticated:
-#         return create_response(success=True, message="User authenticated", data={"user": user_payload(current_user)})
-#     return create_response(success=False, message="User not authenticated")
-
-
-# @story.route("/", methods=["GET"])
-# def index():
-#     data = request.get_json()
-#     username = data.get("username")
-#     password = data.get("password")
-#     user = authenticate_user(username, password)
-
-#     if user:
-#         login_user(user)
-#         return create_response(
-#             success=True,
-#             message="Welcome Back!",
-#             data={"user": user_payload(user)},
-#         )
-#     else:
-#         return create_response(success=False, message="Invalid username or password", status_code=404)
+def story_payload(story: Story):
+    return {
+        "id": story.id,
+        "title": story.title,
+        "content": story.content,
+        "created_at": story.created_at,
+        "updated_at": story.updated_at,
+        "user": story.user.username,
+        "pin": {
+            "latitude": story.pin.latitude,
+            "longitude": story.pin.longitude,
+        },
+    }
 
 
-# @story.route("/", methods=["POST"])
-# def create():
-#     if not current_user.is_authenticated:
-#         return create_response(success=False, message="User not authenticated", status_code=401)
+@story.route("/story/", methods=["POST"])
+def create_story():
+    if not current_user.is_authenticated:
+        return create_response(success=False, message="User not authenticated", status_code=401)
+
+    data = request.get_json()
+    title = data.get("title")
+    content = data.get("content")
+    latitude = data.get("latitude")
+    longitude = data.get("longitude")
+
+    try:
+        story = Story(title=title, content=content, user_id=current_user.id)
+        db.session.add(story)
+        db.session.commit() 
+
+        pin = Pin(latitude=latitude, longitude=longitude, story_id=story.id) 
+        db.session.add(pin)
+        db.session.commit() 
+
+        return create_response(success=True, message="Story created", data={"story": story_payload(story)})
     
-#     data = request.get_json()
-#     tittle = data.get("tittle")
-#     content = data.get("content")
+    except Exception as e:
+        db.session.rollback() 
+        print(e)
+        return create_response(success=False, message=e, status_code=500)
+
+# ------------------------------------------
+@story.route("/story/", methods=["GET"])
+def get_stories():
+    stories = Story.query.all()
+    return create_response(success=True, message="Stories retrieved", data={"stories": [story_payload(story) for story in stories]})
+
+@story.route("/story/<int:story_id>", methods=["GET"])
+def get_story(story_id):
+    story = Story.query.get(story_id)
+    if not story:
+        return create_response(success=False, message="Story not found", status_code=404)
+    return create_response(success=True, message="Story retrieved", data={"story": story_payload(story)})
+
+@story.route("/story/<int:story_id>", methods=["PUT"])
+def update_story(story_id):
+    if not current_user.is_authenticated:
+        return create_response(success=False, message="User not authenticated", status_code=401)
+        
+    data = request.get_json()
+    story = Story.query.get(story_id)
+    story.title = data.get("title")
+    story.content = data.get("content")
     
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return create_response(success=False, message="Failed to update story", status_code=500)
     
+    return create_response(success=True, message="Story updated", data={"story": story_payload(story)})
 
-#     if User.query.filter(User.username == username).first():
-#         return create_response(success=False, message="Username already taken", status_code=409)
-#     else:
-#         user = User(username=username)
-#         user.set_password(password)
-#         db.session.add(user)
-#         db.session.commit()
+@story.route("/story/<int:story_id>", methods=["DELETE"])
+def delete_story(story_id):
+    if not current_user.is_authenticated:
+        return create_response(success=False, message="User not authenticated", status_code=401)
+    
+    story = Story.query.get(story_id)
 
-#         login_user(user)
-#         return create_response(
-#             success=True,
-#             message=f"Welcome {user.username}!",
-#             data={"user": user_payload(user)},
-#             status_code=201,
-#         )
+    if not story:
+        return create_response(success=False, message="Story not found", status_code=404)
+    
+    try:
+        db.session.delete(story)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return create_response(success=False, message="Failed to delete story" , status_code= 500)
 
-# def update():
-#     pass
-
-# def delete():
-#     pass
-
-# def show():
-#     pass
-
+    return create_response(success=True, message="Story deleted")
