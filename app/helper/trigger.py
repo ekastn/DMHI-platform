@@ -22,6 +22,25 @@ FOR EACH ROW
 EXECUTE FUNCTION sync_last_message();
 """
 
+sync_last_message_timestamp_function = """
+CREATE OR REPLACE FUNCTION update_last_content_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE chat_rooms
+    SET last_message_timestamp = NEW.sent_at
+    WHERE chat_room_id = NEW.chat_room_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+"""
+
+sync_last_message_timestamp_trigger = """
+CREATE TRIGGER update_last_content_timestamp_trigger
+AFTER INSERT ON messages
+FOR EACH ROW
+EXECUTE FUNCTION update_last_content_timestamp();
+"""
+
 
 def create_triggers_and_functions():
     """
@@ -33,6 +52,12 @@ def create_triggers_and_functions():
 
         if not trigger_exists("trigger_sync_last_message"):
             db.session.execute(text(sync_last_message_trigger))
+
+        if not function_exists("update_last_content_timestamp"):
+            db.session.execute(text(sync_last_message_timestamp_function))
+
+        if not trigger_exists("update_last_content_timestamp_trigger"):
+            db.session.execute(text(sync_last_message_timestamp_trigger))
 
         db.session.commit()
         print("Triggers and functions created successfully!")

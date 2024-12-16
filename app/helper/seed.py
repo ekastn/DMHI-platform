@@ -61,7 +61,6 @@ def seed():
     for i in range(5):
         chat_room = ChatRoom(
             last_message=f"Last message in chat room {i}",
-            unread_message_count=random.randint(0, 10),
             created_at=datetime.now() - timedelta(days=random.randint(1, 30)),
         )
         chat_rooms.append(chat_room)
