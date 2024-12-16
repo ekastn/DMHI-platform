@@ -6,7 +6,7 @@ if os.getenv("FLASK_ENV") != "production":
     load_dotenv()
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
-TEST_DB = f"sqlite:///{os.path.join(BASEDIR, 'instance', 'test.db')}"
+TEST_DB = "sqlite:///test.db"
 
 
 class Config(object):
@@ -29,8 +29,9 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    SQLALCHEMY_ECHO = True
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = TEST_DB
+    SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DB_URL", TEST_DB)

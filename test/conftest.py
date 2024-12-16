@@ -1,5 +1,5 @@
 import os
-from flask_login import login_user
+from app.helper.trigger import drop_triggers_and_functions, create_triggers_and_functions
 import pytest
 
 from app import create_app, db
@@ -36,13 +36,16 @@ def init_db(app):
         second_user.set_password("userTest2")
         db.session.add_all([default_user, second_user])
 
-        test_story = Story(tittle="Test Story", content="This is a test story", pin=Pin(latitude=37.7749, longitude=-122.4194), user=default_user)
+        test_story = Story(title="Test Story", content="This is a test story", pin=Pin(latitude=37.7749, longitude=-122.4194), user=default_user)
 
         db.session.add(test_story)
         db.session.commit()
-      
-        yield  
 
+        create_triggers_and_functions()
+
+        yield
+
+        drop_triggers_and_functions()
         db.drop_all()
 
 
@@ -54,7 +57,7 @@ def new_user():
 
 @pytest.fixture(scope="module")
 def new_story():
-    story = Story(tittle="Test Story", content="This is a test story")
+    story = Story(title="Test Story", content="This is a test story")
     return story
 
 @pytest.fixture(scope="module")

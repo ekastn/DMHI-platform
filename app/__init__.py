@@ -7,7 +7,6 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from redis import Redis
-from sqlalchemy.orm.instrumentation import register_class
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -43,6 +42,11 @@ def create_app():
 
 def initialize_extensions(app):
     db.init_app(app)
+
+    from app.helper.trigger import create_triggers_and_functions
+    with app.app_context():
+        create_triggers_and_functions()
+
     oauth.init_app(app)
 
     login_manager.init_app(app)
