@@ -1,6 +1,5 @@
 from flask import current_app, request
 from flask_login import current_user
-from flask_migrate import current
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from app import db, redis
@@ -35,7 +34,7 @@ def message_payload(message: Message):
 
 @socketio.on("connect")
 def handle_connect():
-    current_app.logger.info(f"{current_user.username} connected")
+    current_app.logger.info(f"{current_user.id} connected")
 
     session_id = request.sid
     redis.set(f"user_online:{current_user.id}", session_id)
@@ -61,16 +60,12 @@ def handle_disconnect():
 def handle_enter_chat_room(data):
     chat_room_id = data["chatRoomId"]
 
-    redis.sadd(f"chat_room:{chat_room_id}", current_user.id)
     join_room(chat_room_id)
+    redis.sadd(f"chat_room:{chat_room_id}", current_user.id)
 
-    messages = Message.query.filter_by(chat_room_id=chat_room_id).all()
-
-    for message in messages:
-        if message.user_id != current_user.id and not message.is_delivered:
-            message.is_delivered = True
-
-    db.session.commit()
+    db.session.query(Message).filter(
+        Message.chat_room_id == chat_room_id, Message.user_id != current_user.id, Message.is_delivered == False
+    ).update({Message.is_delivered: True})
 
     message_json = [message_payload(message) for message in messages]
     emit(SocketEventType.LOAD_MESSAGES.value, message_json, to=chat_room_id)
