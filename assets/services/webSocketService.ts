@@ -7,7 +7,7 @@ export const enum SocketEventType {
     ENTER_CHAT_ROOM = "enter_chat_room",
     LEAVE_CHAT_ROOM = "leave_chat_room",
     SEND_MESSAGE = "send_message",
-    LOAD_MESSAGES = "load_messages",
+    LOAD_CHAT_ROOM = "load_chat_room",
     NEW_MESSAGE = "new_message",
 }
 

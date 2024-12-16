@@ -11,7 +11,7 @@ class NotificationType(Enum):
 class SocketEventType(Enum):
     SEND_MESSAGE = "send_message"
     NEW_MESSAGE = "new_message"
-    LOAD_MESSAGES = "load_messages"
+    LOAD_CHAT_ROOM = "load_chat_room"
     NOTIFICATION = "notification"
     ENTER_CHAT_ROOM = "enter_chat_room"
     LEAVE_CHAT_ROOM = "leave_chat_room"

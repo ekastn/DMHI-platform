@@ -1,7 +1,6 @@
 from typing import List
 
 from flask import current_app
-from sqlalchemy import func
 
 from app import db
 from app.models.chat import ChatParticipant, ChatRoom

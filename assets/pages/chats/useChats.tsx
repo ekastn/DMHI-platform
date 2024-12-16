@@ -1,3 +1,4 @@
+import { useNavigate } from "@solidjs/router";
 import { isAxiosError } from "axios";
 import { createSignal, onMount } from "solid-js";
 import { getChatListApi } from "../../services/chatServices";
@@ -9,6 +10,8 @@ export const useChats = () => {
     const [chatRooms, setChatRooms] = createSignal<ChatRoomType[]>();
     const [isLoading, setIsLoading] = createSignal(true);
     const [error, setError] = createSignal<string>();
+
+    const navigate = useNavigate();
 
     onMount(async () => {
         const [error, data] = await catchError(getChatListApi());
@@ -23,5 +26,9 @@ export const useChats = () => {
         setIsLoading(false);
     });
 
-    return { chatRooms, isLoading, error };
+    const handleClickChatRoom = (id: number) => {
+        navigate(`/chats/${id}`);
+    };
+
+    return { chatRooms, isLoading, error, handleClickChatRoom };
 };

@@ -14,3 +14,8 @@ export type InputEventTextAreaType = InputEvent & {
     currentTarget: HTMLTextAreaElement;
     target: HTMLTextAreaElement;
 };
+
+export type MouseEventTyp = MouseEvent & {
+    currentTarget: HTMLButtonElement;
+    target: DOMElement;
+};

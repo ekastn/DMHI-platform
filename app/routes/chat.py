@@ -26,4 +26,4 @@ def get_or_create_chat():
     data = request.get_json()
     recipient_id = data.get("recipientId")
     chat = get_or_create_chat_room(current_user.id, recipient_id)
-    return jsonify({"chatRoomId": chat.id})
+    return create_response(success=True, message="Chat fetched successfully", data={"chatRoomId": chat.id})

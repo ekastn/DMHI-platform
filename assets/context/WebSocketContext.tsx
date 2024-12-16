@@ -1,36 +1,48 @@
 import { createContext, ParentComponent, useContext } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { SocketEventType, webSocketService } from "../services/webSocketService";
-import { Message } from "../types/socket";
+import { LoadChatRoomEventType, MessageEventType, NotificationEventType } from "../types/socket";
+import { UserType } from "../types/user.";
+
+type ChatRoomStoreType = {
+    id: number;
+    recipient: UserType;
+};
 
 type WebSocketContextType = {
-    notifications: Notification[];
-    messages: Message[];
+    notifications: NotificationEventType[];
+    messages: MessageEventType[];
+    chatRoom: ChatRoomStoreType;
     connect: () => void;
     disconnect: () => void;
-    joinChatRoom: (chatRoomId: string) => void;
-    leaveChatRoom: (chatRoomId: string) => void;
-    sendMessage: (chatRoomId: string, content: string) => void;
+    joinChatRoom: (chatRoomId: number) => void;
+    leaveChatRoom: (chatRoomId: number) => void;
+    sendMessage: (chatRoomId: number, content: string) => void;
 };
 
 const WebSocketContext = createContext<WebSocketContextType>();
 
 export const WebSocketProvider: ParentComponent = (props) => {
-    const [notifications, setNotifications] = createStore<Notification[]>([]);
-    const [messages, setMessages] = createStore<Message[]>([]);
+    const [notifications, setNotifications] = createStore<NotificationEventType[]>([]);
+    const [messages, setMessages] = createStore<MessageEventType[]>([]);
+    const [chatRoom, setChatRoom] = createStore<ChatRoomStoreType>({} as ChatRoomStoreType);
 
     const connect = () => {
         webSocketService.connect();
 
-        webSocketService.on<Notification[]>(SocketEventType.NOTIFICATION, (data) => {
+        webSocketService.on<NotificationEventType[]>(SocketEventType.NOTIFICATION, (data) => {
             setNotifications(data);
         });
 
-        webSocketService.on<Message[]>(SocketEventType.LOAD_MESSAGES, (data) => {
-            setMessages(data);
+        webSocketService.on<LoadChatRoomEventType>(SocketEventType.LOAD_CHAT_ROOM, (data) => {
+            setChatRoom({
+                id: data.chatRoomId,
+                recipient: data.recipient,
+            });
+            setMessages(data.messages);
         });
 
-        webSocketService.on<Message>(SocketEventType.NEW_MESSAGE, (data) => {
+        webSocketService.on<MessageEventType>(SocketEventType.NEW_MESSAGE, (data) => {
             setMessages(
                 produce((messages) => {
                     messages.push(data);
@@ -41,18 +53,21 @@ export const WebSocketProvider: ParentComponent = (props) => {
 
     const disconnect = () => {
         webSocketService.disconnect();
+        setMessages([]);
+        setNotifications([]);
+        setChatRoom({} as ChatRoomStoreType);
     };
 
-    const joinChatRoom = (chatRoomId: string) => {
+    const joinChatRoom = (chatRoomId: number) => {
         webSocketService.emit(SocketEventType.ENTER_CHAT_ROOM, { chatRoomId });
         setMessages([]);
     };
 
-    const leaveChatRoom = (chatRoomId: string) => {
+    const leaveChatRoom = (chatRoomId: number) => {
         webSocketService.emit(SocketEventType.LEAVE_CHAT_ROOM, { chatRoomId });
     };
 
-    const sendMessage = (chatRoomId: string, content: string) => {
+    const sendMessage = (chatRoomId: number, content: string) => {
         webSocketService.emit(SocketEventType.SEND_MESSAGE, { chatRoomId, content });
     };
 
@@ -66,6 +81,7 @@ export const WebSocketProvider: ParentComponent = (props) => {
                 joinChatRoom,
                 leaveChatRoom,
                 sendMessage,
+                chatRoom,
             }}
         >
             {props.children}

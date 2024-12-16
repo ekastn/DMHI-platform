@@ -14,6 +14,8 @@ export const getChatListApi = async () => {
 };
 
 export const getOrCreateChatApi = async (recipientId: number) => {
-    const { data } = await axios.patch("/api/chats/", { recipientId });
-    console.log(data);
+    const { data } = await axios.patch<APIResponseType<{ chatRoomId: number }>>("/api/chats/", {
+        recipientId,
+    });
+    return data;
 };

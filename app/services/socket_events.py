@@ -4,7 +4,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from app import db, redis
 from app.enums import NotificationType, SocketEventType
-from app.models.chat import ChatParticipant
+from app.models.chat import ChatParticipant, ChatRoom
 from app.models.message import Message
 from app.models.notification import Notification
 
@@ -25,10 +25,12 @@ def message_payload(message: Message):
     return {
         "id": message.id,
         "chatRoomId": message.chat_room_id,
-        "userId": message.user_id,
         "content": message.content,
-        "isDelivered": message.is_delivered,
         "sentAt": message.sent_at,
+        "userId": {
+            "id": message.user.id,
+            "username": message.user.username,
+        },
     }
 
 
@@ -40,12 +42,16 @@ def handle_connect():
     redis.set(f"user_online:{current_user.id}", session_id)
     join_room(session_id)
 
-    notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).all()
+    notifications = Notification.query.filter_by(
+        user_id=current_user.id, is_read=False
+    ).all()
 
     if not notifications:
         return
 
-    notification_json = [notification_payload(notification) for notification in notifications]
+    notification_json = [
+        notification_payload(notification) for notification in notifications
+    ]
     emit(SocketEventType.NOTIFICATION.value, notification_json, to=session_id)
 
 
@@ -63,12 +69,50 @@ def handle_enter_chat_room(data):
     join_room(chat_room_id)
     redis.sadd(f"chat_room:{chat_room_id}", current_user.id)
 
-    db.session.query(Message).filter(
-        Message.chat_room_id == chat_room_id, Message.user_id != current_user.id, Message.is_delivered == False
-    ).update({Message.is_delivered: True})
+    # get the recipient User objeect
+    # get the messages in the chat room
+    # update the id delivered status of the messages for the recipient
+    # emit load chat room event to the user with this param: chat room id, messages, recipient
 
-    message_json = [message_payload(message) for message in messages]
-    emit(SocketEventType.LOAD_MESSAGES.value, message_json, to=chat_room_id)
+    recipient = (
+        ChatParticipant.query.filter(
+            ChatParticipant.chat_room_id == chat_room_id,
+            ChatParticipant.user_id != current_user.id,
+        ).first()
+    ).user
+
+    messages = (
+        Message.query.filter_by(chat_room_id=chat_room_id)
+        .order_by(Message.sent_at)
+        .all()
+    )
+    for message in messages:
+        if message.user_id == recipient.id and not message.is_delivered:
+            message.is_delivered = True
+
+    db.session.commit()
+
+    message_data = [
+        {
+            "id": message.id,
+            "chatRoomId": message.chat_room_id,
+            "content": message.content,
+            "userId": message.user_id,
+            "sentAt": message.sent_at.isoformat(),
+        }
+        for message in messages
+    ]
+
+    chat_room_data = {
+        "chatRoomId": chat_room_id,
+        "messages": message_data,
+        "recipient": {
+            "id": recipient.id,
+            "username": recipient.username,
+        },
+    }
+
+    emit(SocketEventType.LOAD_CHAT_ROOM.value, chat_room_data, to=chat_room_id)
 
 
 @socketio.on(SocketEventType.LEAVE_CHAT_ROOM.value)
@@ -83,13 +127,16 @@ def handle_send_message(data):
     chat_room_id = data["chatRoomId"]
     content = data["content"]
 
-    message = Message(chat_room_id=chat_room_id, user_id=current_user.id, content=content)
+    message = Message(
+        chat_room_id=chat_room_id, user_id=current_user.id, content=content
+    )
     db.session.add(message)
     db.session.commit()
 
     recipient_id = (
         ChatParticipant.query.filter(
-            ChatParticipant.chat_room_id == chat_room_id, ChatParticipant.user_id != current_user.id
+            ChatParticipant.chat_room_id == chat_room_id,
+            ChatParticipant.user_id != current_user.id,
         )
         .first()
         .user_id
@@ -100,7 +147,11 @@ def handle_send_message(data):
 
     if recipient_online:
         if recipient_in_chat_room:
-            emit(SocketEventType.NEW_MESSAGE.value, message_payload(message), to=chat_room_id)
+            emit(
+                SocketEventType.NEW_MESSAGE.value,
+                message_payload(message),
+                to=chat_room_id,
+            )
             message.is_delivered = True
             db.session.commit()
         else:
@@ -112,7 +163,11 @@ def handle_send_message(data):
             db.session.add(notification)
             db.session.commit()
 
-            emit(SocketEventType.NOTIFICATION.value, notification_payload(notification), to=recipient_online)
+            emit(
+                SocketEventType.NOTIFICATION.value,
+                notification_payload(notification),
+                to=recipient_online,
+            )
     else:
         notification = Notification(
             user_id=recipient_id,

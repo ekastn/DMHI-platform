@@ -26,15 +26,20 @@ export const routes: RouteDefinition[] = [
             {
                 path: "/:chatId",
                 component: Chat,
+                matchFilters: { chatId: /^\d+$/ },
             },
-        ]
+        ],
     },
     {
         path: "/create-story",
-        component: () => <ProtectedRoute><CreateStory /></ProtectedRoute>,
+        component: () => (
+            <ProtectedRoute>
+                <CreateStory />
+            </ProtectedRoute>
+        ),
     },
     {
         path: "/story/:storyId",
         component: Story,
-    }
-]
+    },
+];

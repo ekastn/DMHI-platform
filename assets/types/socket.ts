@@ -1,6 +1,7 @@
 import { NotificationType } from "../services/webSocketService";
+import { UserType } from "./user.";
 
-export type Notification = {
+export type NotificationEventType = {
     id: number;
     type: NotificationType;
     content: string;
@@ -8,11 +9,16 @@ export type Notification = {
     createdAt: Date;
 };
 
-export type Message = {
+export type MessageEventType = {
     id: number;
     chatRoomId: number;
     userId: number;
     content: string;
-    isDelivered: boolean;
     sentAt: Date;
 };
+
+export type LoadChatRoomEventType = {
+    chatRoomId: number;
+    recipient: UserType;
+    messages: MessageEventType[];
+}
