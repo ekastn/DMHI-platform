@@ -83,9 +83,9 @@ export const useViewStory = () => {
         if (confirm("Are you sure you want to delete this story?")) {
             setIsLoading(true);
             setError(undefined);
-
-            const [err] = await catchError(deleteStoryApi(storyId.toString()));
-
+            const [err] = await catchError
+            (deleteStoryApi(storyId)
+            );
             if (err && isAxiosError<APIResponseType>(err)) {
                 setError(err.response?.data.message);
             } else {

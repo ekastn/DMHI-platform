@@ -32,7 +32,8 @@ export const updateStoryApi = async (storyId: number, title: string, content: st
     return data;
 };
 
-export const deleteStoryApi = async (storyId: string) => {
-    const { data } = await axios.delete<APIResponseType>(`/story/${storyId}`);
+export const deleteStoryApi = async (storyId: number) => {
+    const { data } = await axios.delete<APIResponseType>(`/api/story/${storyId}`); 
     return data;
 };
+

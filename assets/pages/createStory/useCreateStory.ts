@@ -6,6 +6,7 @@ import { APIResponseType } from "../../types/api"; // Adjust the import based on
 import { FormSubmitEventType, InputEventType } from "../../types/events"; // Adjust the import based on your project structure
 import { catchError } from "../../utils/common"; // Utility function for error handling
 import { createStoryApi } from "../../services/storyService";
+import { InputEventTextAreaType } from "../../types/events";
 
 type StoryForm = {
     tittle: string;
@@ -26,7 +27,7 @@ export const useCreateStory = () => {
 
     const navigate = useNavigate();
 
-    const handleInput = (e: InputEventType) => {
+    const handleInput = (e: InputEventType | InputEventTextAreaType) => {
         const { name, value } = e.currentTarget;
         setFields(name as keyof StoryForm, value);
     };

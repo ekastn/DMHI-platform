@@ -87,15 +87,20 @@ def delete_story(story_id):
         return create_response(success=False, message="User not authenticated", status_code=401)
     
     story = Story.query.get(story_id)
-
+   
     if not story:
         return create_response(success=False, message="Story not found", status_code=404)
     
     try:
+        pin = Pin.query.filter_by(story_id=story_id).first()
+        if pin:
+            db.session.delete(pin)
+            
         db.session.delete(story)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return create_response(success=False, message="Failed to delete story" , status_code= 500)
+        print(f"Error deleting story: {e}") 
+        return create_response(success=False, message="Failed to delete story", status_code=500)
 
     return create_response(success=True, message="Story deleted")
