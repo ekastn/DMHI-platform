@@ -1,4 +1,4 @@
-import { Component, For } from "solid-js";
+import { Component, createEffect, For } from "solid-js";
 import { MessageEventType } from "../../types/socket";
 import { useAuth } from "../../context/AuthContext";
 
@@ -8,7 +8,7 @@ type PropsType = {
 const ChatMessages: Component<PropsType> = (props) => {
     const { user } = useAuth();
 
-    const isMe = (userId: number) => user?.id === userId;
+    const isMe = (userId: number) => user()?.id === userId;
 
     return (
         <div class="flex-grow p-4 border rounded-md overflow-y-auto">
@@ -21,6 +21,7 @@ const ChatMessages: Component<PropsType> = (props) => {
                                     ? "bg-primary-content text-primary"
                                     : "bg-primary text-primary-content"
                             }`}
+
                         >
                             {message.content}
                         </div>

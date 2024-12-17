@@ -1,12 +1,11 @@
 import { useNavigate } from "@solidjs/router";
-import { createContext, createSignal, onMount, Show, useContext } from "solid-js";
-import { ParentComponent } from "solid-js/types/server/rendering.js";
+import { Accessor, createContext, createSignal, onMount, ParentComponent, Show, useContext } from "solid-js";
 import { checkAuthApi, loginApi, logoutApi, registerApi } from "../services/authService";
 import { UserType } from "../types/user.";
 import { useWebSocket } from "./WebSocketContext";
 
 type AuthContextType = {
-    user: UserType | null;
+    user: Accessor<UserType | null>;
     login: (username: string, password: string) => Promise<void>;
     register: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -59,10 +58,10 @@ export const AuthProvider: ParentComponent = (props) => {
     };
 
     const logout = async () => {
-        disconnect();
-        await logoutApi();
         localStorage.removeItem("user");
         setUser(null);
+        disconnect();
+        await logoutApi();
         navigate("/");
     };
 
@@ -71,7 +70,7 @@ export const AuthProvider: ParentComponent = (props) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user: user(), login, register, logout, isLoggedIn }}>
+        <AuthContext.Provider value={{ user, login, register, logout, isLoggedIn }}>
             <Show when={isReady()}>{props.children}</Show>
         </AuthContext.Provider>
     );

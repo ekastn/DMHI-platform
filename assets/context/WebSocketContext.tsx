@@ -1,5 +1,5 @@
 import { createContext, ParentComponent, useContext } from "solid-js";
-import { createStore, produce } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import { SocketEventType, webSocketService } from "../services/webSocketService";
 import { LoadChatRoomEventType, MessageEventType, NotificationEventType } from "../types/socket";
 import { UserType } from "../types/user.";
@@ -44,9 +44,7 @@ export const WebSocketProvider: ParentComponent = (props) => {
 
         webSocketService.on<MessageEventType>(SocketEventType.NEW_MESSAGE, (data) => {
             setMessages(
-                produce((messages) => {
-                    messages.push(data);
-                })
+                [...messages, data]
             );
         });
     };

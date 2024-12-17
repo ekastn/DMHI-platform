@@ -4,42 +4,19 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from app import db, redis
 from app.enums import NotificationType, SocketEventType
-from app.models.chat import ChatParticipant, ChatRoom
+from app.models.chat import ChatParticipant
 from app.models.message import Message
 from app.models.notification import Notification
 
 socketio = SocketIO()
 
 
-def notification_payload(notification: Notification):
-    return {
-        "id": notification.id,
-        "type": notification.type.value,
-        "content": notification.content,
-        "isRead": notification.is_read,
-        "createdAt": notification.created_at,
-    }
-
-
-def message_payload(message: Message):
-    return {
-        "id": message.id,
-        "chatRoomId": message.chat_room_id,
-        "content": message.content,
-        "sentAt": message.sent_at,
-        "userId": {
-            "id": message.user.id,
-            "username": message.user.username,
-        },
-    }
-
-
 @socketio.on("connect")
 def handle_connect():
-    current_app.logger.info(f"{current_user.id} connected")
+    current_app.logger.info(f"{current_user.username} connected")
 
     session_id = request.sid
-    redis.set(f"user_online:{current_user.id}", session_id)
+    redis.set(f"user_online:{current_user.id}", request.sid)
     join_room(session_id)
 
     notifications = Notification.query.filter_by(
@@ -49,10 +26,18 @@ def handle_connect():
     if not notifications:
         return
 
-    notification_json = [
-        notification_payload(notification) for notification in notifications
+    notification_data = [
+        {
+            "id": notification.id,
+            "type": notification.type.value,
+            "content": notification.content,
+            "isRead": notification.is_read,
+            "createdAt": notification.created_at.isoformat(),
+        }
+        for notification in notifications
     ]
-    emit(SocketEventType.NOTIFICATION.value, notification_json, to=session_id)
+
+    emit(SocketEventType.NOTIFICATION.value, notification_data, to=session_id)
 
 
 @socketio.on("disconnect")
@@ -68,11 +53,6 @@ def handle_enter_chat_room(data):
 
     join_room(chat_room_id)
     redis.sadd(f"chat_room:{chat_room_id}", current_user.id)
-
-    # get the recipient User objeect
-    # get the messages in the chat room
-    # update the id delivered status of the messages for the recipient
-    # emit load chat room event to the user with this param: chat room id, messages, recipient
 
     recipient = (
         ChatParticipant.query.filter(
@@ -112,7 +92,7 @@ def handle_enter_chat_room(data):
         },
     }
 
-    emit(SocketEventType.LOAD_CHAT_ROOM.value, chat_room_data, to=chat_room_id)
+    emit(SocketEventType.LOAD_CHAT_ROOM.value, chat_room_data, to=request.sid)
 
 
 @socketio.on(SocketEventType.LEAVE_CHAT_ROOM.value)
@@ -147,9 +127,16 @@ def handle_send_message(data):
 
     if recipient_online:
         if recipient_in_chat_room:
+            message_data = {
+                "id": message.id,
+                "chatRoomId": message.chat_room_id,
+                "content": message.content,
+                "userId": message.user_id,
+                "sentAt": message.sent_at.isoformat(),
+            }
             emit(
                 SocketEventType.NEW_MESSAGE.value,
-                message_payload(message),
+                message_data,
                 to=chat_room_id,
             )
             message.is_delivered = True
@@ -159,15 +146,27 @@ def handle_send_message(data):
                 user_id=recipient_id,
                 type=NotificationType.NEW_MESSAGE,
                 content=f"New message from {current_user.username}",
+                reference_id=chat_room_id,
             )
-            db.session.add(notification)
-            db.session.commit()
+            try:
+                db.session.add(notification)
+                db.session.commit()
+                notification_data = {
+                    "id": notification.id,
+                    "type": notification.type.value,
+                    "content": notification.content,
+                    "isRead": notification.is_read,
+                    "createdAt": notification.created_at.isoformat(),
+                }
+                emit(
+                    SocketEventType.NOTIFICATION.value,
+                    notification_data,
+                    to=str(recipient_online),
+                )
+                current_app.logger.info(f"Notification sent to {str(recipient_id)}")
+            except Exception as e:
+                current_app.logger.error(e)
 
-            emit(
-                SocketEventType.NOTIFICATION.value,
-                notification_payload(notification),
-                to=recipient_online,
-            )
     else:
         notification = Notification(
             user_id=recipient_id,

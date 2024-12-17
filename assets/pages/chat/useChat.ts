@@ -1,9 +1,10 @@
 import { useParams } from "@solidjs/router";
 import { createEffect, createSignal, onMount } from "solid-js";
 import { useWebSocket } from "../../context/WebSocketContext";
+import { onCleanup } from "solid-js";
 
 export const useChat = () => {
-    const { messages, sendMessage, joinChatRoom, chatRoom } = useWebSocket();
+    const { messages, sendMessage, joinChatRoom, chatRoom, leaveChatRoom } = useWebSocket();
     const [message, setMessage] = createSignal("");
     const [isReady, setIsReady] = createSignal(false);
 
@@ -14,16 +15,18 @@ export const useChat = () => {
         joinChatRoom(chatId);
     });
 
+    onCleanup(() => {
+        leaveChatRoom(chatId);
+    });
+
     createEffect(() => {
         if (chatRoom.id === chatId) {
             setIsReady(true);
         }
-        console.log(messages)
     });
 
     const handleSendMessage = (e: Event) => {
         e.preventDefault();
-        console.log(message().length);
         if (message().length > 0) {
             sendMessage(chatId, message());
             setMessage("");

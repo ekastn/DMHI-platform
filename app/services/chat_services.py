@@ -34,13 +34,13 @@ def get_chat_rooms(user_id: int) -> List[dict]:
         chat_room_responses.append(
             {
                 "id": chat_room.id,
-                "lastMessage": chat_room.last_message,
+                "lastMessage": chat_room.last_message or None,
                 "unreadCount": unread_count,
                 "user": {
                     "id": other_user.id,
                     "username": other_user.username,
                 },
-                "lastMessageTimestamp": chat_room.last_message_timestamp.isoformat(),
+                "lastMessageTimestamp": chat_room.last_message_timestamp.isoformat() if chat_room.last_message_timestamp else None,
             }
         )
 
