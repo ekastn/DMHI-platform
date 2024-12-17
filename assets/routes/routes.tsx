@@ -31,15 +31,20 @@ export const routes: RouteDefinition[] = [
         ],
     },
     {
-        path: "/create-story",
-        component: () => (
-            <ProtectedRoute>
-                <CreateStory />
-            </ProtectedRoute>
-        ),
-    },
-    {
-        path: "/story/:storyId",
-        component: Story,
+        path: "/story",
+        children: [
+            {
+                path: "/create",
+                component: () => (
+                    <ProtectedRoute>
+                        <CreateStory />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "/:storyId",
+                component: Story,
+            },
+        ],
     },
 ];
