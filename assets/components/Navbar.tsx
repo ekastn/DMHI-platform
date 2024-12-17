@@ -4,9 +4,11 @@ import { FaRegularCircleUser } from "solid-icons/fa";
 import { IoLocationOutline, IoNotificationsOutline } from "solid-icons/io";
 import { Component, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
+import ControlState from "../context/ControlState";
 
 const Navbar: Component = () => {
     const { isLoggedIn, logout } = useAuth();
+    const { controlState, toggleControl } = ControlState;
 
     return (
         <div class="navbar select-none px-4 py-2 bg-transparent">
@@ -15,8 +17,8 @@ const Navbar: Component = () => {
                     Voixes
                 </A>
             </div>
-            <div class="navbar-center space-x-2 text-md">
-                <a>Location</a>
+            <div class="navbar-center space-x-2 text-md z-10">
+                <a id="location-indicator">Location</a>
                 <IoLocationOutline />
             </div>
             <div class="navbar-end z-50">
@@ -36,6 +38,12 @@ const Navbar: Component = () => {
                     </A>
                     <button onClick={() => logout()} class="btn btn-ghost">
                         <FaRegularCircleUser class="size-6" />
+                    </button>
+                    <button
+                        onClick={toggleControl}
+                        class={`btn btn-sm ${!controlState() ? "btn-neutral" : "btn-ghost"}`}
+                    >
+                        Write story
                     </button>
                 </Show>
             </div>

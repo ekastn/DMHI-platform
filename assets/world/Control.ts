@@ -1,5 +1,8 @@
 import { MathUtils, PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import ControlState from "../context/ControlState";
+
+const { controlState } = ControlState
 
 export default class Control {
     private orbitControl: OrbitControls;
@@ -27,12 +30,13 @@ export default class Control {
     }
 
     update() {
+        this.orbitControl.enabled = !controlState()
         this.orbitControl.update();
     }
 
     private adjustRotationSpeed() {
         const distance = this.camera.position.distanceTo(this.cameraTarget);
-        const mappedDistance = MathUtils.mapLinear(distance, this.minDistance, this.maxDistance, 0.07, 0.5)
+        const mappedDistance = MathUtils.mapLinear(distance, this.minDistance, this.maxDistance, 0.08, 0.5)
         this.orbitControl.rotateSpeed = this.baseRotationSpeed * mappedDistance;
     }
 }

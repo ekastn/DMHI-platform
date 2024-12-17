@@ -19,18 +19,19 @@ export default class World {
     private globe: Globe;
     private control: Control;
 
-    constructor(private canvas: HTMLCanvasElement) {
+    constructor(private container: HTMLDivElement) {
         this.camera = createCamera();
-        this.renderer = createRenderer(this.canvas);
+        this.renderer = createRenderer();
         this.scene = createScene();
         this.globe = new Globe(this.scene);
 
         this.control = new Control(this.camera, this.renderer.domElement);
 
-        this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
+        container.appendChild(this.renderer.domElement)
+        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
 
-        this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+        this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix();
     }
 
@@ -38,12 +39,21 @@ export default class World {
         const raycaster = new Raycaster();
         const mouse = new Vector2();
 
-        this.canvas.addEventListener("mousemove", (e: MouseEvent) => {
-            mouse.x = (e.clientX / this.canvas.clientWidth) * 2 - 1;
-            mouse.y = -(e.clientY / this.canvas.clientHeight) * 2 + 1;
+        this.container.addEventListener("mousemove", (e: MouseEvent) => {
+            mouse.x = (e.clientX / this.container.clientWidth) * 2 - 1;
+            mouse.y = -(e.clientY / this.container.clientHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, this.camera);
             this.globe.handleRaycast(raycaster);
         });
+
+        window.addEventListener("resize", () => {
+            this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+            this.camera.updateProjectionMatrix();
+
+            this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.render(this.scene, this.camera);
+        })
 
         this.renderer.setAnimationLoop(() => {
             this.update();
@@ -52,6 +62,7 @@ export default class World {
 
     update() {
         this.control.update();
+        this.globe.update();
         this.renderer.render(this.scene, this.camera);
     }
 }
