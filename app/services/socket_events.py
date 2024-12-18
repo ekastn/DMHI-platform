@@ -125,15 +125,16 @@ def handle_send_message(data):
     recipient_online = redis.get(f"user_online:{recipient_id}")
     recipient_in_chat_room = redis.sismember(f"chat_room:{chat_room_id}", recipient_id)
 
+    message_data = {
+        "id": message.id,
+        "chatRoomId": message.chat_room_id,
+        "content": message.content,
+        "userId": message.user_id,
+        "sentAt": message.sent_at.isoformat(),
+    }
+
     if recipient_online:
         if recipient_in_chat_room:
-            message_data = {
-                "id": message.id,
-                "chatRoomId": message.chat_room_id,
-                "content": message.content,
-                "userId": message.user_id,
-                "sentAt": message.sent_at.isoformat(),
-            }
             emit(
                 SocketEventType.NEW_MESSAGE.value,
                 message_data,
@@ -148,6 +149,11 @@ def handle_send_message(data):
                 content=f"New message from {current_user.username}",
                 reference_id=chat_room_id,
             )
+            emit(
+                SocketEventType.NEW_MESSAGE.value,
+                message_data,
+                to=request.sid,
+            )
             try:
                 db.session.add(notification)
                 db.session.commit()
@@ -161,13 +167,18 @@ def handle_send_message(data):
                 emit(
                     SocketEventType.NOTIFICATION.value,
                     notification_data,
-                    to=str(recipient_online),
+                    to=recipient_online.decode("utf-8"),
                 )
-                current_app.logger.info(f"Notification sent to {str(recipient_id)}")
+                current_app.logger.info(f"Notification sent to {recipient_online.decode('utf-8')}")
             except Exception as e:
                 current_app.logger.error(e)
 
     else:
+        emit(
+            SocketEventType.NEW_MESSAGE.value,
+            message_data,
+            to=request.sid,
+        )
         notification = Notification(
             user_id=recipient_id,
             type=NotificationType.NEW_MESSAGE,
