@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import ControlState from "../context/ControlState";
 import { useWebSocket } from "../context/WebSocketContext";
 import { formatDate } from "../utils/common";
+import { HiOutlinePencil } from "solid-icons/hi";
 
 const Navbar: Component = () => {
     const { isLoggedIn, logout } = useAuth();
@@ -95,7 +96,7 @@ const Navbar: Component = () => {
                         class={`btn btn-sm tooltip open tooltip-left ${controlState() ? "btn-neutral" : "btn-ghost"}`}
                         data-tip="Write a story"
                     >
-                        <IoCreate class="size-6" />
+                        <HiOutlinePencil class="size-6" />
                     </button>
                 </Show>
             </div>
