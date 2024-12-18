@@ -130,7 +130,7 @@ export default class World {
                 const state = { latitude, longitude };
                 setLocation(state);
                 toggleControl();
-                navigate("/create-story", { state });
+                navigate("/story/create", { state });
             }
         });
 
