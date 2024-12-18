@@ -1,4 +1,4 @@
-import { createContext, ParentComponent, useContext } from "solid-js";
+import { createContext, createEffect, ParentComponent, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { SocketEventType, webSocketService } from "../services/webSocketService";
 import { LoadChatRoomEventType, MessageEventType, NotificationEventType } from "../types/socket";
@@ -18,6 +18,7 @@ type WebSocketContextType = {
     joinChatRoom: (chatRoomId: number) => void;
     leaveChatRoom: (chatRoomId: number) => void;
     sendMessage: (chatRoomId: number, content: string) => void;
+    haveNewNotifications: () => boolean;
 };
 
 const WebSocketContext = createContext<WebSocketContextType>();
@@ -43,9 +44,7 @@ export const WebSocketProvider: ParentComponent = (props) => {
         });
 
         webSocketService.on<MessageEventType>(SocketEventType.NEW_MESSAGE, (data) => {
-            setMessages(
-                [...messages, data]
-            );
+            setMessages((prev) => [...prev, data]);
         });
     };
 
@@ -69,6 +68,10 @@ export const WebSocketProvider: ParentComponent = (props) => {
         webSocketService.emit(SocketEventType.SEND_MESSAGE, { chatRoomId, content });
     };
 
+    const haveNewNotifications = () => {
+        return notifications.some((notification) => notification.isRead == false);
+    };
+
     return (
         <WebSocketContext.Provider
             value={{
@@ -80,6 +83,7 @@ export const WebSocketProvider: ParentComponent = (props) => {
                 leaveChatRoom,
                 sendMessage,
                 chatRoom,
+                haveNewNotifications,
             }}
         >
             {props.children}
