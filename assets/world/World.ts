@@ -49,6 +49,7 @@ export default class World {
         const sphereGeo = new SphereGeometry(this.globe.radius, 64, 64);
         const sphereMat = new MeshBasicMaterial({ color: 0xefc88b });
         const sphere = new Mesh(sphereGeo, sphereMat);
+        sphere.visible = false;
         this.scene.add(sphere);
 
         const markerGeometry = new SphereGeometry(0.09, 32, 32);
@@ -148,7 +149,6 @@ export default class World {
 
     update() {
         this.control.update();
-        this.globe.update();
         this.renderer.render(this.scene, this.camera);
     }
 }
