@@ -1,7 +1,13 @@
-import { createContext, createEffect, ParentComponent, useContext } from "solid-js";
+import { createContext, ParentComponent, useContext } from "solid-js";
 import { createStore } from "solid-js/store";
 import { SocketEventType, webSocketService } from "../services/webSocketService";
-import { LoadChatRoomEventType, MessageEventType, NotificationEventType } from "../types/socket";
+import {
+    LoadChatRoomEventType,
+    MessageEventType,
+    NotificationEventType,
+    PinEventType,
+} from "../types/socket";
+import { PinType } from "../types/story";
 import { UserType } from "../types/user.";
 
 type ChatRoomStoreType = {
@@ -13,12 +19,14 @@ type WebSocketContextType = {
     notifications: NotificationEventType[];
     messages: MessageEventType[];
     chatRoom: ChatRoomStoreType;
+    pin: PinEventType;
     connect: () => void;
     disconnect: () => void;
     joinChatRoom: (chatRoomId: number) => void;
     leaveChatRoom: (chatRoomId: number) => void;
     sendMessage: (chatRoomId: number, content: string) => void;
     haveNewNotifications: () => boolean;
+    sendPin: (latitude: number, longitude: number, storyId: number) => void;
 };
 
 const WebSocketContext = createContext<WebSocketContextType>();
@@ -27,6 +35,11 @@ export const WebSocketProvider: ParentComponent = (props) => {
     const [notifications, setNotifications] = createStore<NotificationEventType[]>([]);
     const [messages, setMessages] = createStore<MessageEventType[]>([]);
     const [chatRoom, setChatRoom] = createStore<ChatRoomStoreType>({} as ChatRoomStoreType);
+    const [pin, setPin] = createStore<PinEventType>({
+        latitude: 0,
+        longitude: 0,
+        storyId: 0,
+    });
 
     const connect = () => {
         webSocketService.connect();
@@ -45,6 +58,12 @@ export const WebSocketProvider: ParentComponent = (props) => {
 
         webSocketService.on<MessageEventType>(SocketEventType.NEW_MESSAGE, (data) => {
             setMessages((prev) => [...prev, data]);
+        });
+
+        webSocketService.on<PinEventType>(SocketEventType.NEW_PIN, (data) => {
+            setPin("latitude", data.latitude);
+            setPin("longitude", data.longitude);
+            setPin("storyId", data.storyId);
         });
     };
 
@@ -72,6 +91,10 @@ export const WebSocketProvider: ParentComponent = (props) => {
         return notifications.some((notification) => notification.isRead == false);
     };
 
+    const sendPin = (latitude: number, longitude: number, storyId: number) => {
+        webSocketService.emit(SocketEventType.NEW_PIN, { latitude, longitude, storyId });
+    };
+
     return (
         <WebSocketContext.Provider
             value={{
@@ -84,6 +107,8 @@ export const WebSocketProvider: ParentComponent = (props) => {
                 sendMessage,
                 chatRoom,
                 haveNewNotifications,
+                pin,
+                sendPin,
             }}
         >
             {props.children}

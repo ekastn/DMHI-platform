@@ -59,7 +59,7 @@ export default class Globe {
     readonly countries: Object3D[] = [];
 
     readonly radius = 10;
-    private baseColor = 0xfaedce;
+    private baseColor = 0x9f9e90;
     private outlineColor = 0x000000;
     private highlightColor = 0xccd5ae;
 
@@ -82,11 +82,11 @@ export default class Globe {
     public async init(): Promise<void> {
         const geoData = await this.loadGeoJson("/public/geo/countries.json");
 
-        // this.countryDataTexture = new Texture(await generateCountryDataTexture(geoData));
-        // this.countryDataTexture.needsUpdate = true;
+        this.countryDataTexture = new Texture(await generateCountryDataTexture(geoData));
+        this.countryDataTexture.needsUpdate = true;
 
-        // this.createGlobe(128);
-        // this.scene.add(this.sphere);
+        this.createGlobe(128);
+        this.scene.add(this.sphere);
 
         this.addRegions(geoData, this.radius * 1.01);
         this.countries.forEach((country) => {
@@ -101,7 +101,7 @@ export default class Globe {
             uniforms: {
                 uCountryDataTexture: { value: this.countryDataTexture },
                 uHoverCountryId: { value: this.hoverCountryId },
-                uBaseColor: { value: new Color(0x000000) },
+                uBaseColor: { value: new Color(this.baseColor) },
                 uHoverColor: { value: new Color(this.highlightColor) },
                 uCountryColor: { value: new Color(0x00ff00) },
             },
@@ -119,27 +119,27 @@ export default class Globe {
     }
 
     public handleRaycast(raycaster: Raycaster) {
-        // const intersects = raycaster.intersectObject(this.sphere);
+        const intersects = raycaster.intersectObject(this.sphere);
 
-        // if (intersects.length > 0) {
-        //     const uv = intersects[0].uv;
+        if (intersects.length > 0) {
+            const uv = intersects[0].uv;
 
-        //     if (uv && this.countryDataTexture) {
-        //         const pixelData = this.sampleTexture(this.countryDataTexture, uv);
-        //         const countryId = this.getCountryIdFromColor(pixelData);
+            if (uv && this.countryDataTexture) {
+                const pixelData = this.sampleTexture(this.countryDataTexture, uv);
+                const countryId = this.getCountryIdFromColor(pixelData);
 
-        //         if (countryId !== this.hoverCountryId) {
-        //             this.hoverCountryId = countryId;
-        //             this.updateHoverCountry(countryId);
-        //         }
-        //     }
-        // } else {
-        //     if (this.hoverCountryId !== -1) {
-        //         this.hoverCountryId = -1;
-        //         this.updateHoverCountry(-1);
-        //     }
-        // }
-        //
+                if (countryId !== this.hoverCountryId) {
+                    this.hoverCountryId = countryId;
+                    this.updateHoverCountry(countryId);
+                }
+            }
+        } else {
+            if (this.hoverCountryId !== -1) {
+                this.hoverCountryId = -1;
+                this.updateHoverCountry(-1);
+            }
+        }
+
 
         const intersectCountries = raycaster.intersectObjects(this.countries);
         if (intersectCountries.length > 0) {

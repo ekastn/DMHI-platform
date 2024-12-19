@@ -15,3 +15,4 @@ class SocketEventType(Enum):
     NOTIFICATION = "notification"
     ENTER_CHAT_ROOM = "enter_chat_room"
     LEAVE_CHAT_ROOM = "leave_chat_room"
+    NEW_PIN = "new_pin"

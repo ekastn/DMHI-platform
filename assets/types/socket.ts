@@ -21,4 +21,10 @@ export type LoadChatRoomEventType = {
     chatRoomId: number;
     recipient: UserType;
     messages: MessageEventType[];
-}
+};
+
+export type PinEventType = {
+    latitude: number;
+    longitude: number;
+    storyId: number;
+};

@@ -7,6 +7,7 @@ from app.enums import NotificationType, SocketEventType
 from app.models.chat import ChatParticipant
 from app.models.message import Message
 from app.models.notification import Notification
+from app.models.pin import Pin
 
 socketio = SocketIO()
 
@@ -19,9 +20,7 @@ def handle_connect():
     redis.set(f"user_online:{current_user.id}", request.sid)
     join_room(session_id)
 
-    notifications = Notification.query.filter_by(
-        user_id=current_user.id, is_read=False
-    ).all()
+    notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).all()
 
     if not notifications:
         return
@@ -61,11 +60,7 @@ def handle_enter_chat_room(data):
         ).first()
     ).user
 
-    messages = (
-        Message.query.filter_by(chat_room_id=chat_room_id)
-        .order_by(Message.sent_at)
-        .all()
-    )
+    messages = Message.query.filter_by(chat_room_id=chat_room_id).order_by(Message.sent_at).all()
     for message in messages:
         if message.user_id == recipient.id and not message.is_delivered:
             message.is_delivered = True
@@ -107,9 +102,7 @@ def handle_send_message(data):
     chat_room_id = data["chatRoomId"]
     content = data["content"]
 
-    message = Message(
-        chat_room_id=chat_room_id, user_id=current_user.id, content=content
-    )
+    message = Message(chat_room_id=chat_room_id, user_id=current_user.id, content=content)
     db.session.add(message)
     db.session.commit()
 
@@ -186,3 +179,14 @@ def handle_send_message(data):
         )
         db.session.add(notification)
         db.session.commit()
+
+
+@socketio.on(SocketEventType.NEW_PIN.value)
+def handle_new_pin(data):
+    pin_data = {
+        "latitude": data["latitude"],
+        "longitude": data["longitude"],
+        "storyId": data["storyId"],
+    }
+
+    emit(SocketEventType.NEW_PIN.value, pin_data)

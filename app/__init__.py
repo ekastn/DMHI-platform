@@ -75,6 +75,9 @@ def register_blueprint(app):
     from app.routes.chat import chat
     app.register_blueprint(chat)
 
+    from app.routes.pin import pin
+    app.register_blueprint(pin)
+
 
 def register_cli_commands(app):
     from app.helper.seed import seed

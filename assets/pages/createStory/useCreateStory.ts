@@ -8,6 +8,8 @@ import { catchError } from "../../utils/common";
 import { createStoryApi } from "../../services/storyService";
 import { InputEventTextAreaType } from "../../types/events";
 import ControlState from "../../context/ControlState";
+import { useWebSocket } from "../../context/WebSocketContext";
+import { PinType } from "../../types/story";
 
 type StoryForm = { tittle: string; content: string; latitude: number; longitude: number };
 
@@ -15,6 +17,7 @@ export const useCreateStory = () => {
     const [isLoading, setIsLoading] = createSignal(false);
     const [error, setError] = createSignal<string | undefined>();
     const [fields, setFields] = createStore({ tittle: "", content: "", latitude: 0, longitude: 0 });
+    const { sendPin } = useWebSocket();
 
     const navigate = useNavigate();
     onMount(() => {
@@ -44,7 +47,7 @@ export const useCreateStory = () => {
         setError(undefined);
         console.log(JSON.stringify(fields));
 
-        const [error] = await catchError(
+        const [error, data] = await catchError(
             createStoryApi(
                 fields.tittle,
                 fields.content,
@@ -56,6 +59,13 @@ export const useCreateStory = () => {
         if (error && isAxiosError<APIResponseType>(error)) {
             setError(error.response?.data.message);
         } else {
+            if (!data?.data.story.id) {
+                sendPin(
+                    parseFloat(fields.latitude.toString()),
+                    parseFloat(fields.longitude.toString()),
+                    data?.data.story.id!
+                );
+            }
             navigate("/");
         }
 

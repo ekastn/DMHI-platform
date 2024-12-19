@@ -9,6 +9,7 @@ export const enum SocketEventType {
     SEND_MESSAGE = "send_message",
     LOAD_CHAT_ROOM = "load_chat_room",
     NEW_MESSAGE = "new_message",
+    NEW_PIN = "new_pin",
 }
 
 export const enum NotificationType {
