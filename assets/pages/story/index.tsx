@@ -2,7 +2,6 @@ import { AiFillEdit } from "solid-icons/ai";
 import { FaSolidPen } from "solid-icons/fa";
 import { Component } from "solid-js";
 import { useViewStory } from "./useStory";
-import axios from "axios";
 import FloatingLayout from "../../components/FloatingLayout";
 
 const ViewStory: Component = () => {

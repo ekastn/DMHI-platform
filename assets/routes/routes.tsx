@@ -6,7 +6,7 @@ import Story from "../pages/story";
 import ProtectedRoute from "./ProtectedRoute";
 import Chat from "../pages/chat";
 import Chats from "../pages/chats";
-import Profile from "../pages/profile";
+import UserProfile from "../pages/profile";
 
 export const routes: RouteDefinition[] = [
     {
@@ -50,6 +50,6 @@ export const routes: RouteDefinition[] = [
     },
     {
         path: "/user/:userId",
-        component: Profile,
+        component: UserProfile,
     },
 ];

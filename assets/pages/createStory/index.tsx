@@ -8,7 +8,7 @@ return (
             <div class="inherit rounded-lg p-8 w-full h-full ">
                 <h1 class="text-2xl text-center mb-4">Create a Story</h1>
                 <br />       
-                <h2 class="text-xl mb-4">Story Title :</h2>
+                <h2 class="text-2xl mb-4">Title :</h2>
                 <form onSubmit={handleSubmit} class="space-y-6">
                     <Show when={error()}>
                         <div role="alert" class="alert">
@@ -21,23 +21,23 @@ return (
                         <input
                             onInput={handleInput}
                             name="tittle"
+                            placeholder="What the title of your story?"
                             type="text"
                             class="grow"
                             required
                         />
                     </label>
 
-                    <h2 class="text-xl mb-2">Description :</h2>
-                    <label class="input input-lg input-bordered flex items-center gap-4 h-52 justify-center">
-                        <AiFillEdit />
+                    <h2 class="text-2xl mb-2">What's On Your Mind?</h2>
+                    <label class="flex items-center gap-4 h-52 justify-center">
                         <textarea
                             onInput={handleInput}
                             name="content"
-                            class="grow resize-none overflow-auto h-full rounded-sm bg-inherit border-none" 
+                            placeholder="Write your story here..."
+                            class="input grow resize-none overflow-auto h-full rounded-sm bg-inherit textarea border border-gray-300 rounded-xl" 
                             required
                         />
                     </label>
-
 
                     <div class="flex justify-between">
                         <button
