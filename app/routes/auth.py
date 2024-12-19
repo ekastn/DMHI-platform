@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
+from app.helper.validation import validate_password,validate_username
 
 from app import db
 from app.helper.http import create_response
@@ -39,28 +40,34 @@ def login():
     else:
         return create_response(success=False, message="Invalid username or password", status_code=404)
 
-
 @auth.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
 
+    validation_result = validate_username(username)
+    if not validation_result["is_valid"]:
+        return create_response(success=False, message=validation_result["message"], status_code=400)
     if User.query.filter(User.username == username).first():
         return create_response(success=False, message="Username already taken", status_code=409)
-    else:
-        user = User(username=username)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
 
-        login_user(user)
-        return create_response(
-            success=True,
-            message=f"Welcome {user.username}!",
-            data={"user": user_payload(user)},
-            status_code=201,
-        )
+    validation_result = validate_password(password)
+    if not validation_result["is_valid"]:
+        return create_response(success=False, message=validation_result["message"], status_code=400)
+
+    user = User(username=username)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+
+    login_user(user)
+    return create_response(
+        success=True,
+        message=f"Welcome {user.username}!",
+        data={"user": user_payload(user)},
+        status_code=201,
+    )
 
 
 @auth.route("/logout")
