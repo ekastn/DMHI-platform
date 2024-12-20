@@ -4,12 +4,15 @@ import { Component, Show } from "solid-js";
 import { useViewStory } from "./useStory";
 import FloatingLayout from "../../components/FloatingLayout";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "@solidjs/router";
 
 const ViewStory: Component = () => {
     const { isEditing, story, setIsEditing, handleInput, fields, handleUpdate, handleDelete } =
         useViewStory();
 
     const { user } = useAuth();
+
+    const navigate = useNavigate();
 
     const onSubmit = async (e: Event) => {
         e.preventDefault();
@@ -19,6 +22,10 @@ const ViewStory: Component = () => {
     const onDelete = async (e: Event) => {
         e.preventDefault();
         await handleDelete();
+    };
+
+    const handleAuthorClick = () => {
+        navigate(`/user/${story.user?.id}`);
     };
 
     return (
@@ -75,7 +82,7 @@ const ViewStory: Component = () => {
                     <div class="">
                         <div class="flex justify-between items-center">
                             <h1 class="text-3xl ml-4">{story.title}</h1>
-                                <Show when={user()?.username == story.user}>
+                            <Show when={user()?.id == story.user?.id}>
                                 <button
                                     onClick={() => setIsEditing(true)}
                                     class="flex items-center gap-2 mr-12 mt-4 text-sm text-gray-500"
@@ -85,7 +92,15 @@ const ViewStory: Component = () => {
                                 </button>
                             </Show>
                         </div>
-                        <p class="text-sm text-gray-500 mt-4 ml-4">Author: {story.user}</p>
+                        <p class="text-sm text-gray-500 mt-4 ml-4">
+                            Author:{" "}
+                            <span
+                                onClick={handleAuthorClick}
+                                class="hover:underline cursor-pointer"
+                            >
+                                {story.user?.username}
+                            </span>
+                        </p>
                     </div>
 
                     <div class="p-4 font-thin rounded-md ">

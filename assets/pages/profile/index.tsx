@@ -7,7 +7,7 @@ import { For } from "solid-js";
 import { useAuth } from "../../context/AuthContext";
 
 const UserProfile: Component = () => {
-    const { profile } = useProfile();
+    const { profile, handleClickTalk, isLoading } = useProfile();
     const { user } = useAuth();
 
     return (
@@ -32,20 +32,24 @@ const UserProfile: Component = () => {
                             />
                             <h1 class="text-4xl font-bold">{profile()?.user.username}</h1>
                             <Show when={user()?.id != profile()?.user.id}>
-                            <div class="flex justify-end w-full mt-4">
-                                <button class="px-4 py-2 w-24 bg-primary text-white rounded-lg shadow-md my-8">
-                                    Talk
-                                </button>
-                            </div>
+                                <div class="flex justify-end w-full mt-4">
+                                    <button
+                                        onClick={async () =>
+                                            await handleClickTalk(profile()?.user.id!)
+                                        }
+                                        disabled={isLoading()}
+                                        class="px-4 py-2 w-24 bg-primary text-white rounded-lg shadow-md my-8"
+                                    >
+                                        Talk
+                                    </button>
+                                </div>
                             </Show>
                         </div>
                         <h1 class="font-xl mt-8 text-2xl">Stories:</h1>
                         <div class="flex flex-col space-y-4 mt-4">
                             <For each={profile()?.user.stories}>
                                 {(story) => (
-                                    <a
-                                        class="p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200"
-                                    >
+                                    <a class="p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200">
                                         <h2 class="text-lg font-semibold">{story.title}</h2>
                                         <p class="text-gray-600">{story.content}</p>
                                     </a>

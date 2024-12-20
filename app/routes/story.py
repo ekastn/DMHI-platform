@@ -15,7 +15,10 @@ def story_payload(story: Story):
         "content": story.content,
         "created_at": story.created_at,
         "updated_at": story.updated_at,
-        "user": story.user.username,
+        "user": {
+            "id": story.user.id,
+            "username": story.user.username,
+        },
         "pin": {
             "latitude": story.pin.latitude,
             "longitude": story.pin.longitude,

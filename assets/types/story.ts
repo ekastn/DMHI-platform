@@ -1,14 +1,16 @@
+import { UserType } from "./user.";
+
 export type StoryType = {
     id: number;
     title: string;
     content: string;
-    user: string;
+    user: UserType;
     created_at: Date;
     update_at: Date;
     pin: PinType;
 };
 
-export type PinType = { 
+export type PinType = {
     latitude: number;
     longitude: number;
 };
