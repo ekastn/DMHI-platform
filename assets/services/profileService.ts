@@ -3,13 +3,9 @@ import { APIResponseType } from "../types/api";
 import { StoryType } from "../types/story";
 import { UserType } from "../types/user.";
 
-type userProfile = {user: UserType};
+export type ProfileResponseType = { user: UserType & { stories: StoryType[] } };
 
-export const getUserProfile = async (
-    userId: number , 
-    username: string
-    ) => {
-    const { data } = await axios.get<APIResponseType<userProfile>>(`/api/user/?userId=${userId}&username=${username}`);
-    return data;
-}
-
+export const getUserProfile = async (userId: number) => {
+    const { data } = await axios.get<APIResponseType<ProfileResponseType>>(`/api/user/${userId}`);
+    return data.data;
+};
