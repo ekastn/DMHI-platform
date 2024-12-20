@@ -1,13 +1,13 @@
-import { A, Navigate, useLocation, useNavigate } from "@solidjs/router";
+import { A, useLocation, useNavigate } from "@solidjs/router";
 import { AiOutlineMessage } from "solid-icons/ai";
 import { FaRegularCircleUser } from "solid-icons/fa";
-import { IoCreate, IoLocationOutline, IoNotificationsOutline } from "solid-icons/io";
-import { Component, createEffect, For, Show } from "solid-js";
+import { HiOutlinePencil } from "solid-icons/hi";
+import { IoLocationOutline, IoNotificationsOutline } from "solid-icons/io";
+import { Component, For, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 import ControlState from "../context/ControlState";
 import { useWebSocket } from "../context/WebSocketContext";
 import { formatDate } from "../utils/common";
-import { HiOutlinePencil } from "solid-icons/hi";
 
 const Navbar: Component = () => {
     const { isLoggedIn, logout } = useAuth();
@@ -16,10 +16,6 @@ const Navbar: Component = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-
-    createEffect(() => {
-        console.log(location.pathname);
-    });
 
     const handleMessageClick = () => {
         if (location.pathname !== "/chats") {

@@ -27,6 +27,7 @@ import { useWebSocket } from "../context/WebSocketContext";
 import { createEffect } from "solid-js";
 import { PinType } from "../types/story";
 import Pin from "./Pin";
+import { latLngToVector3, vector3ToLatLng } from "../utils/math";
 
 const { controlState, setLocation, toggleControl, hoverPin, setHoverPin } = ControlState;
 
@@ -60,12 +61,11 @@ export default class World {
             if (pin.storyId !== 0) {
                 this.createPin(pin, pin.storyId);
             }
-            console.log("New Pin")
         });
     }
 
     start() {
-        this.plotPins()
+        this.plotPins();
 
         const sphereGeo = new SphereGeometry(this.globe.radius, 64, 64);
         const sphereMat = new MeshBasicMaterial({ color: 0xefc88b });
@@ -81,17 +81,6 @@ export default class World {
 
         let markerTargetPosition = new Vector3();
         let normalIntersactionPoint = new Vector3();
-
-        const ringGeometry = new RingGeometry(0.06, 0.3, 32);
-        const ringMaterial = new MeshBasicMaterial({
-            color: 0x210232,
-            side: DoubleSide,
-            transparent: true,
-            opacity: 0.5,
-        });
-        const highlightRing = new Mesh(ringGeometry, ringMaterial);
-        highlightRing.visible = false;
-        this.scene.add(highlightRing);
 
         const raycaster = new Raycaster();
         const mouse = new Vector2();
@@ -114,7 +103,7 @@ export default class World {
             const intersects = raycaster.intersectObjects(this.scene.children);
             if (intersects.length > 0 && intersects[0].object.userData.storyId) {
                 this.hoveredStoryId = intersects[0].object.userData.storyId;
-                setHoverPin(true)
+                setHoverPin(true);
             }
 
             const intersectsGlobe = raycaster.intersectObject(sphere);
@@ -125,17 +114,13 @@ export default class World {
                 normalIntersactionPoint = intersectionPoint.clone().normalize();
 
                 markerTargetPosition.copy(intersectionPoint);
-                highlightRing.lookAt(intersectionPoint.clone().add(normalIntersactionPoint));
 
                 marker.visible = true;
-                highlightRing.visible = true;
 
-                const phi = Math.acos(intersectionPoint.y / this.globe.radius);
-                const theta = Math.atan2(intersectionPoint.z, intersectionPoint.x);
-                latitude = 90 - (phi * 180) / Math.PI;
-                longitude = ((theta * 180) / Math.PI + 360) % 360;
+                const coord = vector3ToLatLng(intersectionPoint);
+                latitude = coord.lat;
+                longitude = coord.lng;
             } else {
-                highlightRing.visible = false;
                 marker.visible = false;
             }
         });
@@ -166,7 +151,6 @@ export default class World {
                 navigate("/story/create", { state });
             }
 
-            console.log("hover pin", hoverPin(), "hovered story id", this.hoveredStoryId)
             if (hoverPin() && this.hoveredStoryId != -1) {
                 navigate(`/story/${this.hoveredStoryId}`);
             }
@@ -175,7 +159,6 @@ export default class World {
         this.renderer.setAnimationLoop(() => {
             if (marker.visible) {
                 marker.position.lerp(markerTargetPosition, 0.3);
-                highlightRing.position.lerp(markerTargetPosition, 0.3);
 
                 const scale = 1 + Math.sin(Date.now() * 0.005) * 0.2;
                 marker.scale.set(scale, scale, scale);
@@ -192,7 +175,7 @@ export default class World {
     private plotPins() {
         this.loadPins().then((pins) => {
             pins?.forEach((pin) => {
-                this.createPin(pin, pin.storyId)
+                this.createPin(pin, pin.storyId);
             });
         });
     }

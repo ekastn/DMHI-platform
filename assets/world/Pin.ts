@@ -36,7 +36,6 @@ export default class Pin {
         if (intersects.length > 0) {
             material.color.set(0x00ff00);
             setHoverPin(true);
-            console.log(hoverPin());
         }
     }
 }

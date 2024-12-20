@@ -7,7 +7,6 @@ import {
     NotificationEventType,
     PinEventType,
 } from "../types/socket";
-import { PinType } from "../types/story";
 import { UserType } from "../types/user.";
 
 type ChatRoomStoreType = {

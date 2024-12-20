@@ -45,7 +45,6 @@ export const useCreateStory = () => {
         e.preventDefault();
         setIsLoading(true);
         setError(undefined);
-        console.log(JSON.stringify(fields));
 
         const [error, data] = await catchError(
             createStoryApi(
@@ -59,7 +58,7 @@ export const useCreateStory = () => {
         if (error && isAxiosError<APIResponseType>(error)) {
             setError(error.response?.data.message);
         } else {
-            if (!data?.data.story.id) {
+            if (data?.data.story.id) {
                 sendPin(
                     parseFloat(fields.latitude.toString()),
                     parseFloat(fields.longitude.toString()),
