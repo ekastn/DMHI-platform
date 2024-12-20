@@ -14,6 +14,8 @@ const Navbar: Component = () => {
     const { controlState, toggleControl } = ControlState;
     const { haveNewNotifications, notifications } = useWebSocket();
 
+    const { user } = useAuth();
+
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -23,6 +25,11 @@ const Navbar: Component = () => {
         } else {
             navigate("/");
         }
+    };
+
+    const handleProfileClick = () => {
+        console.log("profile click")
+        navigate(`/user/${user().id}}`);
     };
 
     return (
@@ -80,7 +87,7 @@ const Navbar: Component = () => {
                         </button>
                         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                             <li>
-                                <button>Profile</button>
+                                <button onClick={handleProfileClick}>Profile</button>
                             </li>
                             <li>
                                 <button onClick={logout}>Log Out</button>
