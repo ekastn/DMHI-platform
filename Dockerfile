@@ -28,7 +28,7 @@ COPY ./config.py .
 
 COPY --from=asset /app/build ./build
 
-ENV FLASK_APP=app
+ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV APP_SETTING=config.ProductionConfig
