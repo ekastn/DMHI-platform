@@ -14,7 +14,6 @@ def list_pins():
 
     pins_json = [
         {
-            "id": pin.id,
             "latitude": pin.latitude,
             "longitude": pin.longitude,
             "storyId": pin.story_id

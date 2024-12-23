@@ -1,5 +1,6 @@
 import {
     DoubleSide,
+    Group,
     Material,
     Mesh,
     MeshBasicMaterial,
@@ -28,6 +29,7 @@ import { createEffect } from "solid-js";
 import { PinType } from "../types/story";
 import Pin from "./Pin";
 import { latLngToVector3, vector3ToLatLng } from "../utils/math";
+import { PinEventType } from "../types/socket";
 
 const { controlState, setLocation, toggleControl, hoverPin, setHoverPin } = ControlState;
 
@@ -39,6 +41,7 @@ export default class World {
     private control: Control;
 
     private pins: Pin[] = [];
+    private pinGourp: Group = new Group();
     private hoveredStoryId = -1;
 
     constructor(private container: HTMLDivElement) {
@@ -58,15 +61,17 @@ export default class World {
 
         const { pin } = useWebSocket();
         createEffect(() => {
+            console.log("from world, got new pin", JSON.stringify(pin));
             if (pin.storyId !== 0) {
-                this.createPin(pin, pin.storyId);
+                this.createPin(pin);
             }
         });
+
+        this.plotPins();
+        this.scene.add(this.pinGourp);
     }
 
     start() {
-        this.plotPins();
-
         const sphereGeo = new SphereGeometry(this.globe.radius, 64, 64);
         const sphereMat = new MeshBasicMaterial({ color: 0xefc88b });
         const sphere = new Mesh(sphereGeo, sphereMat);
@@ -92,6 +97,8 @@ export default class World {
             mouse.y = -(e.clientY / this.container.clientHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, this.camera);
 
+            this.hoveredStoryId = -1;
+
             this.globe.handleRaycast(raycaster);
 
             if (this.pins.length > 0) {
@@ -100,8 +107,9 @@ export default class World {
                 });
             }
 
-            const intersects = raycaster.intersectObjects(this.scene.children);
-            if (intersects.length > 0 && intersects[0].object.userData.storyId) {
+            const intersects = raycaster.intersectObjects(this.pinGourp.children);
+            if (intersects.length > 0) {
+                console.log(intersects[0].object.userData.storyId)
                 this.hoveredStoryId = intersects[0].object.userData.storyId;
                 setHoverPin(true);
             }
@@ -151,7 +159,9 @@ export default class World {
                 navigate("/story/create", { state });
             }
 
-            if (hoverPin() && this.hoveredStoryId != -1) {
+            console.log("from world click hovered pin", this.hoveredStoryId);
+
+            if (hoverPin() && this.hoveredStoryId != -1 && this.hoveredStoryId != undefined) {
                 navigate(`/story/${this.hoveredStoryId}`);
             }
         });
@@ -165,6 +175,7 @@ export default class World {
             }
             this.update();
         });
+        console.log(this.scene)
     }
 
     update() {
@@ -175,13 +186,20 @@ export default class World {
     private plotPins() {
         this.loadPins().then((pins) => {
             pins?.forEach((pin) => {
-                this.createPin(pin, pin.storyId);
+                this.createPin(pin);
             });
+            console.log(this.pins);
         });
     }
 
-    private createPin(pin: PinType, storyId: number) {
-        const newPin = new Pin(pin.latitude, pin.longitude, storyId, this.scene, this.globe.radius);
+    private createPin(pin: PinEventType) {
+        const newPin = new Pin(
+            pin.latitude,
+            pin.longitude,
+            pin.storyId,
+            this.pinGourp,
+            this.globe.radius
+        );
         this.pins.push(newPin);
     }
 

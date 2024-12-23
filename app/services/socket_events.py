@@ -179,14 +179,3 @@ def handle_send_message(data):
         )
         db.session.add(notification)
         db.session.commit()
-
-
-@socketio.on(SocketEventType.NEW_PIN.value)
-def handle_new_pin(data):
-    pin_data = {
-        "latitude": data["latitude"],
-        "longitude": data["longitude"],
-        "storyId": data["storyId"],
-    }
-
-    emit(SocketEventType.NEW_PIN.value, pin_data)

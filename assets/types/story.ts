@@ -5,8 +5,8 @@ export type StoryType = {
     title: string;
     content: string;
     user: UserType;
-    created_at: Date;
-    update_at: Date;
+    createdAt: Date;
+    updateAt: Date;
     pin: PinType;
 };
 

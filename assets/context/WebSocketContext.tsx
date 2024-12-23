@@ -60,9 +60,8 @@ export const WebSocketProvider: ParentComponent = (props) => {
         });
 
         webSocketService.on<PinEventType>(SocketEventType.NEW_PIN, (data) => {
-            setPin("latitude", data.latitude);
-            setPin("longitude", data.longitude);
-            setPin("storyId", data.storyId);
+            setPin(data);
+            console.log("from webscketContext, got new pin", JSON.stringify(pin));
         });
     };
 
