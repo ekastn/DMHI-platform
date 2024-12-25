@@ -61,7 +61,6 @@ export const WebSocketProvider: ParentComponent = (props) => {
 
         webSocketService.on<PinEventType>(SocketEventType.NEW_PIN, (data) => {
             setPin(data);
-            console.log("from webscketContext, got new pin", JSON.stringify(pin));
         });
     };
 

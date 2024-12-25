@@ -31,7 +31,6 @@ export const useCreateStory = () => {
         setIsLoading(true);
         setError(undefined);
 
-        console.log("create story", JSON.stringify(location));
         const [error, data] = await catchError(
             createStoryApi(fields.tittle, fields.content, location().latitude, location().longitude)
         );

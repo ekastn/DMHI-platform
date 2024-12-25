@@ -3,23 +3,19 @@ import {
     Color,
     DoubleSide,
     Float32BufferAttribute,
-    Group,
     Line,
     LineBasicMaterial,
     Mesh,
-    MeshBasicMaterial,
     Object3D,
-    Raycaster,
     Scene,
     ShaderMaterial,
     SphereGeometry,
-    Texture,
-    Vector2,
+    Texture
 } from "three";
 
 import { FeatureCollection, MultiPolygon, Polygon, Position } from "geojson";
 import { latLngToVector3 } from "../utils/math";
-import { generateBorderTexture, generateCountryDataTexture } from "./CountriesGeneration";
+import { generateCountryDataTexture } from "./CountriesGeneration";
 
 type Coordinates = Position[][];
 
@@ -59,23 +55,17 @@ export default class Globe {
     readonly countries: Object3D[] = [];
 
     readonly radius = 10;
-    private baseColor = 0x9f9e90;
-    private outlineColor = 0x000000;
-    private highlightColor = 0xccd5ae;
+    readonly baseColor = 0x9f9e90;
+    readonly outlineColor = 0x000000;
+    readonly highlightColor = 0xccd5ae;
 
-    private sphere: Mesh;
+    public sphere: Mesh;
     private countryDataTexture: Texture | null = null;
-    private borderTexture: Texture | null = null;
     private hoverCountryId: number = -1;
-
-    private locationContainer: HTMLDivElement;
 
     constructor(private scene: Scene) {
         this.sphere = new Mesh(new SphereGeometry());
-        this.locationContainer = document.getElementById("location-indicator") as HTMLDivElement;
-
         this.countries.push(this.sphere);
-
         this.init();
     }
 
@@ -92,6 +82,28 @@ export default class Globe {
         this.countries.forEach((country) => {
             this.scene.add(country);
         });
+    }
+
+    public updateHoverCountry(countryId: number): void {
+        const material = this.sphere.material as ShaderMaterial;
+        material.uniforms.uHoverCountryId.value = countryId;
+    }
+
+    public getCountryIdFromColor(color: Uint8Array | Uint8ClampedArray): number {
+        const [r, g, b] = color;
+        return r * 256 * 256 + g * 256 + b;
+    }
+
+    public getCountryDataTexture() {
+        return this.countryDataTexture;
+    }
+
+    public getHoverCountryId(): number {
+        return this.hoverCountryId;
+    }
+
+    public setHoverCountryId(countryId: number): void {
+        this.hoverCountryId = countryId;
     }
 
     private createGlobe(segments: number = 64) {
@@ -111,48 +123,6 @@ export default class Globe {
         });
 
         this.sphere = new Mesh(globeGeometry, globeMaterial);
-    }
-
-    private updateHoverCountry(countryId: number): void {
-        const material = this.sphere.material as ShaderMaterial;
-        material.uniforms.uHoverCountryId.value = countryId;
-    }
-
-    public handleRaycast(raycaster: Raycaster) {
-        const intersects = raycaster.intersectObject(this.sphere);
-
-        if (intersects.length > 0) {
-            const uv = intersects[0].uv;
-
-            if (uv && this.countryDataTexture) {
-                const pixelData = this.sampleTexture(this.countryDataTexture, uv);
-                const countryId = this.getCountryIdFromColor(pixelData);
-
-                if (countryId !== this.hoverCountryId) {
-                    this.hoverCountryId = countryId;
-                    this.updateHoverCountry(countryId);
-                }
-            }
-        } else {
-            if (this.hoverCountryId !== -1) {
-                this.hoverCountryId = -1;
-                this.updateHoverCountry(-1);
-            }
-        }
-
-
-        const intersectCountries = raycaster.intersectObjects(this.countries);
-        if (intersectCountries.length > 0) {
-            this.countries.forEach((country) => {
-                const material = (country as Mesh).material as MeshBasicMaterial;
-                material.color.set(this.outlineColor);
-            });
-
-            const intersected = intersectCountries[0].object as Mesh;
-            (intersected.material as MeshBasicMaterial).color.set(this.baseColor);
-
-            this.locationContainer.textContent = intersected.userData.country;
-        }
     }
 
     private addRegions(geoData: FeatureCollection, radius: number) {
@@ -183,23 +153,6 @@ export default class Globe {
         const line = new Line(geometry, material);
         line.userData.country = name;
         this.countries.push(line);
-    }
-
-    private sampleTexture(texture: Texture, uv: Vector2) {
-        const { image } = texture;
-        if (!(image instanceof HTMLCanvasElement)) return null;
-
-        const ctx = image.getContext("2d");
-        if (!ctx) return null;
-
-        const x = Math.floor(uv.x * image.width);
-        const y = Math.floor((1 - uv.y) * image.height);
-        return ctx.getImageData(x, y, 1, 1).data || new Uint8Array(4);
-    }
-
-    private getCountryIdFromColor(color: Uint8Array | Uint8ClampedArray): number {
-        const [r, g, b] = color;
-        return r * 256 * 256 + g * 256 + b;
     }
 
     private async loadGeoJson(path: string) {

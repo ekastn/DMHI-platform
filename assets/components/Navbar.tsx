@@ -28,8 +28,7 @@ const Navbar: Component = () => {
     };
 
     const handleProfileClick = () => {
-        console.log("profile click")
-        navigate(`/user/${user().id}}`);
+        navigate(`/user/${user()?.id}}`);
     };
 
     return (
