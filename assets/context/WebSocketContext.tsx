@@ -43,8 +43,12 @@ export const WebSocketProvider: ParentComponent = (props) => {
     const connect = () => {
         webSocketService.connect();
 
-        webSocketService.on<NotificationEventType[]>(SocketEventType.NOTIFICATION, (data) => {
+        webSocketService.on<NotificationEventType[]>(SocketEventType.LOAD_NOTIFICATION, (data) => {
             setNotifications(data);
+        });
+
+        webSocketService.on<NotificationEventType>(SocketEventType.NEW_NOTIFICATION, (data) => {
+            setNotifications((prev) => [...prev, data]);
         });
 
         webSocketService.on<LoadChatRoomEventType>(SocketEventType.LOAD_CHAT_ROOM, (data) => {

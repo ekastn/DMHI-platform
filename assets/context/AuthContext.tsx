@@ -61,8 +61,8 @@ export const AuthProvider: ParentComponent = (props) => {
         localStorage.removeItem("user");
         setUser(null);
         disconnect();
-        await logoutApi();
         navigate("/");
+        await logoutApi();
     };
 
     const isLoggedIn = () => {

@@ -7,6 +7,7 @@ export type NotificationEventType = {
     content: string;
     isRead: boolean;
     createdAt: Date;
+    referenceId: number;
 };
 
 export type MessageEventType = {

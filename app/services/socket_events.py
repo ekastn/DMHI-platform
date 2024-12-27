@@ -7,7 +7,6 @@ from app.enums import NotificationType, SocketEventType
 from app.models.chat import ChatParticipant
 from app.models.message import Message
 from app.models.notification import Notification
-from app.models.pin import Pin
 
 socketio = SocketIO()
 
@@ -32,11 +31,12 @@ def handle_connect():
             "content": notification.content,
             "isRead": notification.is_read,
             "createdAt": notification.created_at.isoformat(),
+            "referenceId": notification.reference_id,
         }
         for notification in notifications
     ]
 
-    emit(SocketEventType.NOTIFICATION.value, notification_data, to=session_id)
+    emit(SocketEventType.LOAD_NOTIFICATION.value, notification_data, to=session_id)
 
 
 @socketio.on("disconnect")
@@ -156,13 +156,14 @@ def handle_send_message(data):
                     "content": notification.content,
                     "isRead": notification.is_read,
                     "createdAt": notification.created_at.isoformat(),
+                    "referenceId": notification.reference_id,
                 }
                 emit(
-                    SocketEventType.NOTIFICATION.value,
+                    SocketEventType.NEW_NOTIFICATION.value,
                     notification_data,
                     to=recipient_online.decode("utf-8"),
                 )
-                current_app.logger.info(f"Notification sent to {recipient_online.decode('utf-8')}")
+                current_app.logger.info(f"Notification sent to {notification.user.username}")
             except Exception as e:
                 current_app.logger.error(e)
 
@@ -176,6 +177,7 @@ def handle_send_message(data):
             user_id=recipient_id,
             type=NotificationType.NEW_MESSAGE,
             content=f"New message from {current_user.username}",
+            reference_id=chat_room_id,
         )
         db.session.add(notification)
         db.session.commit()
