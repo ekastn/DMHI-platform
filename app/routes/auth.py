@@ -31,7 +31,7 @@ def login():
     user = authenticate_user(username, password)
 
     if user:
-        login_user(user)
+        login_user(user, remember=True)
         return create_response(
             success=True,
             message="Welcome Back!",
@@ -61,7 +61,7 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    login_user(user)
+    login_user(user, remember=True)
     return create_response(
         success=True,
         message=f"Welcome {user.username}!",
