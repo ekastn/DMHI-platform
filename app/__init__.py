@@ -31,6 +31,7 @@ def create_app():
     register_cli_commands(app)
 
     from app.models.chat import ChatParticipant, ChatRoom
+    from app.models.friend import Friend, FriendRequest
     from app.models.message import Message
     from app.models.notification import Notification
     from app.models.pin import Pin
@@ -44,6 +45,7 @@ def initialize_extensions(app):
     db.init_app(app)
 
     from app.helper.trigger import create_triggers_and_functions
+
     with app.app_context():
         create_triggers_and_functions()
 
@@ -61,24 +63,31 @@ def initialize_extensions(app):
 
 def register_blueprint(app):
     from app.helper.assets_blueprint import assets_blueprint
+
     app.register_blueprint(assets_blueprint)
 
     from app.routes.auth import auth
+
     app.register_blueprint(auth)
 
     from app.routes.main import main
+
     app.register_blueprint(main)
 
     from app.routes.story import story
+
     app.register_blueprint(story)
 
     from app.routes.chat import chat
+
     app.register_blueprint(chat)
 
     from app.routes.pin import pin
+
     app.register_blueprint(pin)
 
     from app.routes.user import user
+
     app.register_blueprint(user)
 
 

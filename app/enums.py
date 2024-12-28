@@ -8,6 +8,12 @@ class NotificationType(Enum):
     FRIEND_POST = "friend_post"
 
 
+class FriendRequestStatusType(Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+
+
 class SocketEventType(Enum):
     SEND_MESSAGE = "send_message"
     NEW_MESSAGE = "new_message"
