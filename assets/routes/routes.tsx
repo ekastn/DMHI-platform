@@ -7,6 +7,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Chat from "../pages/chat";
 import Chats from "../pages/chats";
 import UserProfile from "../pages/profile";
+import Notifications from "../pages/notifications";
 
 export const routes: RouteDefinition[] = [
     {
@@ -51,5 +52,9 @@ export const routes: RouteDefinition[] = [
     {
         path: "/user/:userId",
         component: UserProfile,
+    },
+    {
+        path: "/notifications",
+        component: Notifications,
     },
 ];

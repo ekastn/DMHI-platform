@@ -1,16 +1,18 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { createResource, createSignal } from "solid-js";
-import { getUserProfile } from "../../services/profileService";
+import { getUserInfoApi } from "../../services/userService";
 import { catchError } from "../../utils/common";
 import { getOrCreateChatApi } from "../../services/chatServices";
+import { FormSubmitEventType } from "../../types/events";
 
 export const useProfile = () => {
     const params = useParams();
     const userId = parseInt(params.userId);
 
+    const [isEditing, setIsEditing] = createSignal(false);
     const [isLoading, setIsLoading] = createSignal(false);
 
-    const [profile] = createResource(userId, getUserProfile);
+    const [profile] = createResource(userId, getUserInfoApi);
 
     const navigate = useNavigate();
 
@@ -28,5 +30,11 @@ export const useProfile = () => {
         setIsLoading(false);
     };
 
-    return { profile, handleClickTalk, isLoading };
+    const handleEditSubmit = (e: FormSubmitEventType) => {
+        e.preventDefault();
+        console.log(e.target);
+        setIsEditing(false);
+    };
+
+    return { profile, handleClickTalk, isLoading, isEditing, setIsEditing, handleEditSubmit };
 };

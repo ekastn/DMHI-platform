@@ -20,6 +20,7 @@ class SocketEventType(Enum):
     LOAD_CHAT_ROOM = "load_chat_room"
     LOAD_NOTIFICATION = "load_notification"
     NEW_NOTIFICATION = "new_notification"
+    REMOVE_NOTIFICATION = "remove_notification"
     ENTER_CHAT_ROOM = "enter_chat_room"
     LEAVE_CHAT_ROOM = "leave_chat_room"
     NEW_PIN = "new_pin"

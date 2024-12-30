@@ -51,6 +51,10 @@ export const WebSocketProvider: ParentComponent = (props) => {
             setNotifications((prev) => [...prev, data]);
         });
 
+        webSocketService.on<NotificationEventType>(SocketEventType.REMOVE_NOTIFICATION, (data) => {
+            setNotifications((prev) => prev.filter((notification) => notification.id != data.id));
+        });
+
         webSocketService.on<LoadChatRoomEventType>(SocketEventType.LOAD_CHAT_ROOM, (data) => {
             setChatRoom({
                 id: data.chatRoomId,

@@ -5,6 +5,7 @@ export const enum SocketEventType {
     DISCONNECT = "disconnect",
     LOAD_NOTIFICATION = "load_notification",
     NEW_NOTIFICATION = "new_notification",
+    REMOVE_NOTIFICATION = "remove_notification",
     ENTER_CHAT_ROOM = "enter_chat_room",
     LEAVE_CHAT_ROOM = "leave_chat_room",
     SEND_MESSAGE = "send_message",
