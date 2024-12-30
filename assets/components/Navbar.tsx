@@ -2,15 +2,16 @@ import { A, useLocation, useNavigate } from "@solidjs/router";
 import { AiOutlineMessage } from "solid-icons/ai";
 import { FaRegularCircleUser } from "solid-icons/fa";
 import { HiOutlinePencil } from "solid-icons/hi";
-import { IoLocationOutline } from "solid-icons/io";
+import { IoLocationOutline, IoNotificationsOutline } from "solid-icons/io";
 import { Component, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 import ControlState from "../context/ControlState";
-import NotificationDropdown from "./NotificatioinDropdown";
+import { useWebSocket } from "../context/WebSocketContext";
 
 const Navbar: Component = () => {
     const { isLoggedIn, logout } = useAuth();
     const { controlState, toggleControl } = ControlState;
+    const { haveNewNotifications } = useWebSocket();
 
     const { user } = useAuth();
 
@@ -27,6 +28,14 @@ const Navbar: Component = () => {
 
     const handleProfileClick = () => {
         navigate(`/user/${user()?.id}}`);
+    };
+
+    const handleNotificationClick = () => {
+        if (location.pathname !== "/notifications") {
+            navigate("/notifications");
+        } else {
+            navigate("/");
+        }
     };
 
     return (
@@ -52,7 +61,14 @@ const Navbar: Component = () => {
                     <button onClick={handleMessageClick} class="btn btn-ghost">
                         <AiOutlineMessage class="size-6" />
                     </button>
-                    <NotificationDropdown />
+                    <button onClick={handleNotificationClick} class="btn btn-ghost">
+                        <div class="indicator">
+                            <IoNotificationsOutline class="size-6" />
+                            <Show when={haveNewNotifications()}>
+                                <span class="badge badge-xs badge-primary indicator-item"></span>
+                            </Show>
+                        </div>
+                    </button>
                     <div class="dropdown dropdown-end">
                         <button class="btn btn-ghost">
                             <FaRegularCircleUser class="size-6" />
