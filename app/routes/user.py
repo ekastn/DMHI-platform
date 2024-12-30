@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app, request
 from flask_login import current_user
+from sqlalchemy import and_, or_
 
 from app import db, redis
 from app.enums import NotificationType, SocketEventType
@@ -80,9 +81,11 @@ def is_friend(user_id, friend_id):
         return create_response(success=False, message="User not found", status_code=404)
 
     is_friend = (
-        Friend.query.filter(
-            (Friend.usera_id == user_id and Friend.userb_id == friend_id)
-            | (Friend.usera_id == friend_id and Friend.userb_id == user_id)
+        friend.query.filter(
+            or_(
+                and_(Friend.usera_id == user_id, Friend.userb_id == friend_id),
+                and_(Friend.usera_id == friend_id, Friend.userb_id == user_id),
+            )
         )
     ).first()
 
@@ -154,7 +157,7 @@ def send_friend_request(user_id):
         user_id=user_id,
         type=NotificationType.FRIEND_REQUEST,
         content=f"New friend request from {current_user.username}",
-        reference_id=friend_request.id,
+        reference_id=current_user.id,
     )
 
     try:
@@ -195,18 +198,38 @@ def update_friend_request(user_id):
     data = request.get_json()
     accepted = data.get("accept")
 
+    notification = Notification.query.filter_by(
+        user_id=current_user.id, type=NotificationType.FRIEND_REQUEST, reference_id=user_id
+    ).first()
+
     if accepted:
         friend = Friend(usera_id=friend_request.sender_id, userb_id=friend_request.receiver_id)
-        try:
-            db.session.add(friend)
-            db.session.delete(friend_request)
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            current_app.logger.error(e)
-            return create_response(success=False, message="Failed to accept friend request", status_code=500)
-    else:
+        db.session.add(friend)
+
+    try:
         db.session.delete(friend_request)
+        if notification:
+            db.session.delete(notification)
         db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return create_response(success=False, message="Failed to update friend request", status_code=500)
+
+    con = redis.get(f"user_online:{current_user.id}")
+    notofication_data = {
+        "id": notification.id,
+        "type": notification.type.value,
+        "content": notification.content,
+        "isRead": notification.is_read,
+        "createdAt": notification.created_at.isoformat(),
+        "referenceId": notification.reference_id,
+    }
+
+    socketio.emit(
+        SocketEventType.REMOVE_NOTIFICATION.value,
+        notofication_data,
+        to=con.decode("utf-8"),
+    )
 
     return create_response(success=True, message="Friend request updated")
