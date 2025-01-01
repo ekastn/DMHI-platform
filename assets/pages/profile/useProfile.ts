@@ -1,13 +1,13 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { createResource, createSignal } from "solid-js";
+import { createEffect, createResource, createSignal } from "solid-js";
 import { getUserInfoApi } from "../../services/userService";
 import { catchError } from "../../utils/common";
 import { getOrCreateChatApi } from "../../services/chatServices";
 import { FormSubmitEventType } from "../../types/events";
 
 export const useProfile = () => {
+    const [userId, setUserId] = createSignal<number>();
     const params = useParams();
-    const userId = parseInt(params.userId);
 
     const [isEditing, setIsEditing] = createSignal(false);
     const [isLoading, setIsLoading] = createSignal(false);
@@ -15,6 +15,10 @@ export const useProfile = () => {
     const [profile] = createResource(userId, getUserInfoApi);
 
     const navigate = useNavigate();
+
+    createEffect(() => {
+        setUserId(parseInt(params.userId))
+    })
 
     const handleClickTalk = async (userId: number) => {
         setIsLoading(true);

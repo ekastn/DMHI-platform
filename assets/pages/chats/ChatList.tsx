@@ -20,7 +20,7 @@ const ChatList: Component = () => {
                                 <p class="text-xs">{room.lastMessageTimestamps.toDateString()}</p>
                             </div>
                             <p class="text-sm prose">{room.lastMessage}</p>
-                            <p class="text-xs">{room.unreadCount}</p>
+                            {/* <p class="text-xs">{room.unreadCount}</p> */}
                         </div>
                     </div>
                 </button>

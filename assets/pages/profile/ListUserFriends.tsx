@@ -1,6 +1,7 @@
 import { BiRegularErrorCircle } from "solid-icons/bi";
 import { Component, createResource, For, Match, Switch } from "solid-js";
 import { getUserFriendsApi } from "../../services/userService";
+import { A } from "@solidjs/router";
 
 type PropsType = {
     userId: number;
@@ -24,9 +25,9 @@ const ListUserFriends: Component<PropsType> = (props) => {
                 <div class="flex flex-col space-y-4 mt-4">
                     <For each={friends()?.friends}>
                         {(story) => (
-                            <a class="p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200">
+                            <A href={`/user/${story.id}`} class="p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200">
                                 <h2 class="text-lg font-semibold">{story.username}</h2>
-                            </a>
+                            </A>
                         )}
                     </For>
                 </div>
