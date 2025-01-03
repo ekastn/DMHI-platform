@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from flask_login import UserMixin
+from sqlalchemy import DateTime, func
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.sqltypes import String
@@ -21,6 +24,9 @@ class User(db.Model, UserMixin):
     email: Mapped[Optional[str]] = mapped_column(String(120), unique=True, nullable=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     google_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    profile_image: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(), default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(), default=func.now())
 
     stories: Mapped[List["Story"]] = relationship(back_populates="user")
     chat_rooms: Mapped[List["ChatParticipant"]] = relationship(back_populates="user")
