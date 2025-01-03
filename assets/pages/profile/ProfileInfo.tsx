@@ -3,6 +3,7 @@ import { BsPersonFillAdd } from "solid-icons/bs";
 import { Component, createSignal, Match, onMount, Show, Switch } from "solid-js";
 import { checkFriendApi, createFriendRequestApi } from "../../services/userService";
 import { UserType } from "../../types/user.";
+import ProfileImage from "./ProfileImage";
 
 type PropsType = {
     currentUser: UserType | null;
@@ -19,7 +20,6 @@ const ProfileInfo: Component<PropsType> = (props) => {
     onMount(async () => {
         if (props.currentUser && props.user) {
             const data = await checkFriendApi(props.currentUser.id, props.user.id);
-            console.log(JSON.stringify(data))
             setShowAddFriend(
                 !data.isFriend &&
                     data.friendRequest == null &&
@@ -39,11 +39,7 @@ const ProfileInfo: Component<PropsType> = (props) => {
 
     return (
         <div class="flex items-center justify-start space-x-4">
-            <img
-                src="https://img.freepik.com/premium-vector/people-vector_53876-25570.jpg?semt=ais_hybrid"
-                alt="Profile"
-                class="w-28 h-28 rounded-full border-none border-gray-300"
-            />
+            <ProfileImage image={props.user?.profileImage} />
             <div class="space-y-2">
                 <h1 class="text-4xl font-bold">{props.user?.username}</h1>
                 <Switch>

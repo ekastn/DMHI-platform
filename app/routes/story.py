@@ -6,6 +6,7 @@ from app.enums import SocketEventType
 from app.helper.http import create_response
 from app.models.pin import Pin
 from app.models.story import Story
+from app.services.auth import user_payload
 from app.services.socket_events import socketio
 
 story = Blueprint("story", __name__, url_prefix="/api")
@@ -18,10 +19,7 @@ def story_payload(story: Story):
         "content": story.content,
         "createdAt": story.created_at,
         "updatedAt": story.updated_at,
-        "user": {
-            "id": story.user.id,
-            "username": story.user.username,
-        },
+        "user": user_payload(story.user),
         "pin": {
             "latitude": story.pin.latitude,
             "longitude": story.pin.longitude,

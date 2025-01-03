@@ -6,6 +6,7 @@ from app import db
 from app.models.chat import ChatParticipant, ChatRoom
 from app.models.message import Message
 from app.models.user import User
+from app.services.auth import user_payload
 
 
 def get_unread_message_count(chat_room_id: int, user_id: int) -> int:
@@ -36,10 +37,7 @@ def get_chat_rooms(user_id: int) -> List[dict]:
                 "id": chat_room.id,
                 "lastMessage": chat_room.last_message or None,
                 "unreadCount": unread_count,
-                "user": {
-                    "id": other_user.id,
-                    "username": other_user.username,
-                },
+                "user": user_payload(other_user),
                 "lastMessageTimestamp": chat_room.last_message_timestamp.isoformat() if chat_room.last_message_timestamp else None,
             }
         )

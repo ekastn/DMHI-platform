@@ -7,33 +7,13 @@ from app.enums import NotificationType, SocketEventType
 from app.helper.http import create_response
 from app.models.friend import Friend, FriendRequest
 from app.models.notification import Notification
-from app.models.story import Story
 from app.models.user import User
+from app.routes.story import story_payload
+from app.services.auth import user_payload
 from app.services.socket_events import socketio
+from app.services.storage_service import upload_file
 
 user = Blueprint("user", __name__, url_prefix="/api/user")
-
-
-def story_payload(story: Story):
-    return {
-        "id": story.id,
-        "title": story.title,
-        "content": story.content,
-        "created_at": story.created_at,
-        "updated_at": story.updated_at,
-        "user": story.user.username,
-        "pin": {
-            "latitude": story.pin.latitude,
-            "longitude": story.pin.longitude,
-        },
-    }
-
-
-def user_payload(user):
-    return {
-        "id": user.id,
-        "username": user.username,
-    }
 
 
 @user.route("/<int:user_id>", methods=["GET"])
@@ -44,6 +24,38 @@ def get_user_info(user_id):
         return create_response(success=False, message="User not found", status_code=404)
 
     return create_response(success=True, data={"user": user_payload(user)})
+
+
+@user.route("/<int:user_id>", methods=["PUT"])
+def update_user_info(user_id):
+    if not current_user.is_authenticated:
+        return create_response(success=False, message="User not authenticated", status_code=401)
+
+    if current_user.id != user_id:
+        return create_response(success=False, message="Unauthorized", status_code=401)
+
+    data = request.get_json()
+    username = data.get("username")
+
+    if not username:
+        return create_response(success=False, message="Username is required", status_code=400)
+
+    user = User.query.get(user_id)
+    if not user:
+        return create_response(success=False, message="User not found", status_code=404)
+
+    if User.query.filter(User.username == username).first():
+        return create_response(success=False, message="Username already taken", status_code=409)
+
+    user.username = username
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return create_response(success=False, message="Failed to update user", status_code=500)
+
+    return create_response(success=True, message="User updated", data={"user": user_payload(user)})
 
 
 @user.route("/<int:user_id>/stories", methods=["GET"])
@@ -233,3 +245,27 @@ def update_friend_request(user_id):
     )
 
     return create_response(success=True, message="Friend request updated")
+
+
+@user.route("/profile_image", methods=["POST"])
+def upload_profile_image():
+    if not current_user.is_authenticated:
+        return create_response(success=False, message="User not authenticated", status_code=401)
+
+    if "file" not in request.files:
+        return create_response(success=False, message="No file part", status_code=400)
+
+    file = request.files["file"]
+    if file.filename == "":
+        return create_response(success=False, message="No selected file", status_code=400)
+
+    file_bytes = file.read()
+    current_app.logger.info(f"Uploading profile image {file}")
+
+    response = upload_file(file_bytes, current_user.id)
+    if "error" in response:
+        return create_response(success=False, message=response["error"], status_code=500)
+
+    file_path = response["file_path"]
+
+    return create_response(success=True, message="Profile image uploaded", data={"filePath": file_path})

@@ -14,8 +14,16 @@ const tabs = [
 ];
 
 const UserProfile: Component = () => {
-    const { profile, handleClickTalk, isLoading, isEditing, setIsEditing, handleEditSubmit } =
-        useProfile();
+    const {
+        profile,
+        handleClickTalk,
+        isLoading,
+        isEditing,
+        setIsEditing,
+        handleEditSubmit,
+        handleChangeProfileImage,
+        handleInput
+    } = useProfile();
     const { user } = useAuth();
 
     const [selectedTab, setSelectedTab] = createSignal(tabs[0].title);
@@ -36,7 +44,7 @@ const UserProfile: Component = () => {
                     </div>
                 </Match>
                 <Match when={profile()}>
-                    <div class="flex flex-col h-full p-4 bg-white rounded-lg">
+                    <div class="flex flex-col h-full p-4 bg-white rounded-lg space-y-4">
                         <Switch>
                             <Match when={!isEditing()}>
                                 <ProfileInfo
@@ -53,6 +61,8 @@ const UserProfile: Component = () => {
                                     isLoading={isLoading()}
                                     user={profile()?.user}
                                     setIsEditing={setIsEditing}
+                                    handleChangeProfileImage={handleChangeProfileImage}
+                                    handleInput={handleInput}
                                 />
                             </Match>
                         </Switch>

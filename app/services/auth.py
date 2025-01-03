@@ -21,8 +21,8 @@ def authenticate_user(username: str, password: str) -> Optional[User]:
     return None
 
 
-def user_payload(user: User) -> Dict[str, str | int]:
-    return {"id": user.id, "username": user.username}
+def user_payload(user: User) -> Dict[str, str | int | None]:
+    return {"id": user.id, "username": user.username, "profileImage": user.profile_image}
 
 
 def google_login():
