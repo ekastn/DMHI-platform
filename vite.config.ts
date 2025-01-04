@@ -18,7 +18,7 @@ export default defineConfig({
         copyPublicDir: false,
     },
     test: {
-        root: "./test",
+        root: "./tests",
     },
     plugins: [solidPlugin()],
 });
