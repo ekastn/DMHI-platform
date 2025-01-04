@@ -1,16 +1,11 @@
 from flask import Blueprint, request
 from flask_login import current_user, login_required, login_user, logout_user
-from app.helper.validation import validate_password,validate_username
 
 from app import db
-from app.helper.http import create_response
+from app.helper.http import create_response, user_payload
+from app.helper.validation import validate_password, validate_username
 from app.models.user import User
-from app.services.auth import (
-    authenticate_user,
-    google_callback,
-    google_login,
-    user_payload,
-)
+from app.services.auth import authenticate_user, google_callback, google_login
 
 auth = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -39,6 +34,7 @@ def login():
         )
     else:
         return create_response(success=False, message="Invalid username or password", status_code=404)
+
 
 @auth.route("/register", methods=["POST"])
 def register():

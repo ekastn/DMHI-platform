@@ -3,28 +3,12 @@ from flask_login import current_user
 
 from app import db
 from app.enums import SocketEventType
-from app.helper.http import create_response
+from app.helper.http import create_response, pin_payload, story_payload, user_payload
 from app.models.pin import Pin
 from app.models.story import Story
-from app.services.auth import user_payload
 from app.services.socket_events import socketio
 
 story = Blueprint("story", __name__, url_prefix="/api")
-
-
-def story_payload(story: Story):
-    return {
-        "id": story.id,
-        "title": story.title,
-        "content": story.content,
-        "createdAt": story.created_at,
-        "updatedAt": story.updated_at,
-        "user": user_payload(story.user),
-        "pin": {
-            "latitude": story.pin.latitude,
-            "longitude": story.pin.longitude,
-        },
-    }
 
 
 @story.route("/story/", methods=["POST"])
@@ -46,12 +30,7 @@ def create_story():
         db.session.commit()
 
         story_response = story_payload(story)
-        pin_socket_payload = {
-            "storyId": story.id,
-            "latitude": latitude,
-            "longitude": longitude,
-        }
-
+        pin_socket_payload = pin_payload(story.pin)
         socketio.emit(SocketEventType.NEW_PIN.value, pin_socket_payload)
         return create_response(success=True, message="Story created", data={"story": story_response})
 

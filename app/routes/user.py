@@ -4,12 +4,11 @@ from sqlalchemy import and_, or_
 
 from app import db, redis
 from app.enums import NotificationType, SocketEventType
-from app.helper.http import create_response
+from app.helper.http import create_response, notification_payload, user_payload
 from app.models.friend import Friend, FriendRequest
 from app.models.notification import Notification
 from app.models.user import User
 from app.routes.story import story_payload
-from app.services.auth import user_payload
 from app.services.socket_events import socketio
 from app.services.storage_service import upload_file
 
@@ -181,17 +180,9 @@ def send_friend_request(user_id):
 
     receiver_online = redis.get(f"user_online:{user_id}")
     if receiver_online:
-        notification_data = {
-            "id": notification.id,
-            "type": notification.type.value,
-            "content": notification.content,
-            "isRead": notification.is_read,
-            "createdAt": notification.created_at.isoformat(),
-            "referenceId": notification.reference_id,
-        }
         socketio.emit(
             SocketEventType.NEW_NOTIFICATION.value,
-            notification_data,
+            notification_payload(notification),
             to=receiver_online.decode("utf-8"),
         )
 
@@ -229,18 +220,10 @@ def update_friend_request(user_id):
         return create_response(success=False, message="Failed to update friend request", status_code=500)
 
     con = redis.get(f"user_online:{current_user.id}")
-    notofication_data = {
-        "id": notification.id,
-        "type": notification.type.value,
-        "content": notification.content,
-        "isRead": notification.is_read,
-        "createdAt": notification.created_at.isoformat(),
-        "referenceId": notification.reference_id,
-    }
 
     socketio.emit(
         SocketEventType.REMOVE_NOTIFICATION.value,
-        notofication_data,
+        notification_payload(notification),
         to=con.decode("utf-8"),
     )
 

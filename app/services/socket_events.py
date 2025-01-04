@@ -4,6 +4,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 
 from app import db, redis
 from app.enums import NotificationType, SocketEventType
+from app.helper.http import notification_payload
 from app.models.chat import ChatParticipant
 from app.models.message import Message
 from app.models.notification import Notification
@@ -24,17 +25,7 @@ def handle_connect():
     if not notifications:
         return
 
-    notification_data = [
-        {
-            "id": notification.id,
-            "type": notification.type.value,
-            "content": notification.content,
-            "isRead": notification.is_read,
-            "createdAt": notification.created_at.isoformat(),
-            "referenceId": notification.reference_id,
-        }
-        for notification in notifications
-    ]
+    notification_data = [notification_payload(notification) for notification in notifications]
 
     emit(SocketEventType.LOAD_NOTIFICATION.value, notification_data, to=session_id)
 
@@ -150,17 +141,9 @@ def handle_send_message(data):
             try:
                 db.session.add(notification)
                 db.session.commit()
-                notification_data = {
-                    "id": notification.id,
-                    "type": notification.type.value,
-                    "content": notification.content,
-                    "isRead": notification.is_read,
-                    "createdAt": notification.created_at.isoformat(),
-                    "referenceId": notification.reference_id,
-                }
                 emit(
                     SocketEventType.NEW_NOTIFICATION.value,
-                    notification_data,
+                    notification_payload(notificaiton),
                     to=recipient_online.decode("utf-8"),
                 )
                 current_app.logger.info(f"Notification sent to {notification.user.username}")

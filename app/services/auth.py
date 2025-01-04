@@ -21,10 +21,6 @@ def authenticate_user(username: str, password: str) -> Optional[User]:
     return None
 
 
-def user_payload(user: User) -> Dict[str, str | int | None]:
-    return {"id": user.id, "username": user.username, "profileImage": user.profile_image}
-
-
 def google_login():
     redirect_uri = url_for("auth.authorize_google", _external=True)
     return google.authorize_redirect(redirect_uri)  # type: ignore

@@ -3,10 +3,10 @@ from typing import List
 from flask import current_app
 
 from app import db
+from app.helper.http import user_payload
 from app.models.chat import ChatParticipant, ChatRoom
 from app.models.message import Message
 from app.models.user import User
-from app.services.auth import user_payload
 
 
 def get_unread_message_count(chat_room_id: int, user_id: int) -> int:
@@ -38,7 +38,9 @@ def get_chat_rooms(user_id: int) -> List[dict]:
                 "lastMessage": chat_room.last_message or None,
                 "unreadCount": unread_count,
                 "user": user_payload(other_user),
-                "lastMessageTimestamp": chat_room.last_message_timestamp.isoformat() if chat_room.last_message_timestamp else None,
+                "lastMessageTimestamp": chat_room.last_message_timestamp.isoformat()
+                if chat_room.last_message_timestamp
+                else None,
             }
         )
 
