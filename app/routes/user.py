@@ -9,6 +9,7 @@ from app.models.friend import Friend, FriendRequest
 from app.models.notification import Notification
 from app.models.user import User
 from app.routes.story import story_payload
+from app.services.redis_services import get_user_online
 from app.services.socket_events import socketio
 from app.services.storage_service import upload_file
 
@@ -178,7 +179,7 @@ def send_friend_request(user_id):
         current_app.logger.error(e)
         db.session.rollback()
 
-    receiver_online = redis.get(f"user_online:{user_id}")
+    receiver_online = get_user_online(user_id)
     if receiver_online:
         socketio.emit(
             SocketEventType.NEW_NOTIFICATION.value,
@@ -219,7 +220,7 @@ def update_friend_request(user_id):
         current_app.logger.error(e)
         return create_response(success=False, message="Failed to update friend request", status_code=500)
 
-    con = redis.get(f"user_online:{current_user.id}")
+    con = get_user_online(current_user.id)
 
     socketio.emit(
         SocketEventType.REMOVE_NOTIFICATION.value,

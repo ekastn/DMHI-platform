@@ -2,12 +2,20 @@ from flask import current_app, request
 from flask_login import current_user
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
-from app import db, redis
+from app import db
 from app.enums import NotificationType, SocketEventType
 from app.helper.http import notification_payload
 from app.models.chat import ChatParticipant
 from app.models.message import Message
 from app.models.notification import Notification
+from app.services.redis_services import (
+    add_user_to_chat_room,
+    delete_user_online,
+    get_user_online,
+    is_user_in_chat_room,
+    remove_user_from_chat_room,
+    set_user_online,
+)
 
 socketio = SocketIO()
 
@@ -17,7 +25,8 @@ def handle_connect():
     current_app.logger.info(f"{current_user.username} connected")
 
     session_id = request.sid
-    redis.set(f"user_online:{current_user.id}", request.sid)
+
+    set_user_online(current_user.id, session_id)
     join_room(session_id)
 
     notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).all()
@@ -33,7 +42,7 @@ def handle_connect():
 @socketio.on("disconnect")
 def handle_disconnect():
     current_app.logger.info(f"{current_user.username} disconnected")
-    redis.delete(f"user_online:{current_user.id}")
+    delete_user_online(current_user.id)
     leave_room(request.sid)
 
 
@@ -41,8 +50,8 @@ def handle_disconnect():
 def handle_enter_chat_room(data):
     chat_room_id = data["chatRoomId"]
 
+    add_user_to_chat_room(chat_room_id, current_user.id)
     join_room(chat_room_id)
-    redis.sadd(f"chat_room:{chat_room_id}", current_user.id)
 
     recipient = (
         ChatParticipant.query.filter(
@@ -84,7 +93,7 @@ def handle_enter_chat_room(data):
 @socketio.on(SocketEventType.LEAVE_CHAT_ROOM.value)
 def handle_leave_chat_room(data):
     chat_room_id = data["chatRoomId"]
-    redis.srem(f"chat_room:{chat_room_id}", current_user.id)
+    remove_user_from_chat_room(chat_room_id, current_user.id)
     leave_room(chat_room_id)
 
 
@@ -106,8 +115,8 @@ def handle_send_message(data):
         .user_id
     )
 
-    recipient_online = redis.get(f"user_online:{recipient_id}")
-    recipient_in_chat_room = redis.sismember(f"chat_room:{chat_room_id}", recipient_id)
+    recipient_online = get_user_online(recipient_id)
+    recipient_in_chat_room = is_user_in_chat_room(chat_room_id, recipient_id)
 
     message_data = {
         "id": message.id,
