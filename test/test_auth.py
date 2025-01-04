@@ -32,7 +32,7 @@ def test_invalid_login(client, init_db):
 def test_valid_registration(client, init_db):
     response = client.post(
         "/auth/register",
-        data=json.dumps({"username": "HumanNoid", "password": "HumanIsGood"}),
+        data=json.dumps({"username": "HumanNoid", "password": "HumanIsGood1"}),
         content_type="application/json",
     )
     assert response.status_code == 201
@@ -43,14 +43,14 @@ def test_valid_registration(client, init_db):
 def test_duplicate_user_registration(client, init_db):
     client.post(
         "/auth/register",
-        data=json.dumps({"username": "newuser", "password": "newuser"}),
+        data=json.dumps({"username": "newuser", "password": "Newuser1"}),
         content_type="application/json",
     )
     client.get("/auth/logout")
 
     response = client.post(
         "/auth/register",
-        data=json.dumps({"username": "newuser", "password": "newuser"}),
+        data=json.dumps({"username": "newuser", "password": "Newuser1"}),
         content_type="application/json",
     )
     assert response.status_code != 201

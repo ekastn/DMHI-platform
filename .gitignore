@@ -30,3 +30,4 @@ __pycache__
 instance/
 
 secrets
+.coverage

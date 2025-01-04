@@ -19,8 +19,4 @@ class Story(db.Model):
     user: Mapped["User"]  = relationship(back_populates="stories")
 
     def __repr__(self):
-        return f"<Story: {self.tittle}>"
-    
-
-
-
+        return f"<Story: {self.title}>"
