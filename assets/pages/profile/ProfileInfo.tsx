@@ -64,7 +64,7 @@ const ProfileInfo: Component<PropsType> = (props) => {
                     </Match>
                 </Switch>
             </div>
-            <Show when={props.currentUser?.id != props.user?.id}>
+            <Show when={props.currentUser?.id != props.user?.id && props.currentUser}>
                 <div class="flex justify-end w-full mt-4">
                     <button
                         onClick={async () => await props.handleClickTalk(props.user?.id!)}
