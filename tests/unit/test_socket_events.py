@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from app.services.socket_events import handle_connect, handle_disconnect
+from app.services.socket_events import handle_connect, handle_disconnect, handle_enter_chat_room, handle_leave_chat_room
 
 
 @patch("app.services.socket_events.set_user_online")

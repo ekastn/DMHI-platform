@@ -1,5 +1,4 @@
 from flask import Blueprint, request
-from flask.json import jsonify
 from flask_login import current_user
 
 from app.helper.http import create_response

@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 from flask_socketio import SocketIO
+from flask_login import FlaskLoginClient
 from PIL import Image
 
 from app import create_app, db
@@ -23,13 +24,20 @@ from app.models.user import User
 def app():
     os.environ["APP_SETTING"] = "config.TestingConfig"
     flask_app = create_app()
-
+    flask_app.test_client_class = FlaskLoginClient
     yield flask_app
 
 
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture(scope="function")
+def auth_client(app, init_db):
+    user = User.query.get(1)
+    with app.test_client(user=user) as client:
+        yield client
 
 
 @pytest.fixture()
@@ -95,15 +103,6 @@ def init_db(app):
             reference_id=chat_room.id,
         )
         db.session.add(notification)
-        db.session.commit()
-
-        friend_request = FriendRequest(
-            sender_id=default_user.id,
-            receiver_id=second_user.id,
-            status=FriendRequestStatusType.PENDING,
-            sent_at=datetime.now(),
-        )
-        db.session.add(friend_request)
         db.session.commit()
 
         create_triggers_and_functions()

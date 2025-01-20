@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, request
 from flask_login import current_user
 from sqlalchemy import and_, or_
 
-from app import db, redis
+from app import db
 from app.enums import NotificationType, SocketEventType
 from app.helper.http import create_response, notification_payload, user_payload
 from app.models.friend import Friend, FriendRequest
