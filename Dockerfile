@@ -25,6 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./app ./app
 COPY ./public ./public
 COPY ./config.py .
+COPY ./run.py .
 
 COPY --from=asset /app/build ./build
 
@@ -33,6 +34,6 @@ ENV FLASK_ENV=production
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV APP_SETTING=config.ProductionConfig
 
-EXPOSE 5000
+EXPOSE 80
 
-CMD ["flask", "run"]
+CMD ["flask", "run", "--port", "80"]
